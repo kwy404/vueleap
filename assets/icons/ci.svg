@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#42b883" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" role="img">
+  <title>CI exit codes with --fail-on</title>
+  <rect x="1" y="1" width="46" height="46" rx="12" fill="#42b883" fill-opacity=".12" stroke="none"/>
+  <path d="M35 21a11 11 0 0 0-19.5-4.5"/>
+  <path d="M15 11v6h6"/>
+  <path d="M13 27a11 11 0 0 0 19.5 4.5"/>
+  <path d="M33 37v-6h-6"/>
+  <path d="M19.5 24l3 3 6-6" stroke="#2c8c63"/>
+</svg>

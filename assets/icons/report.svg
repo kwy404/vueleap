@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#42b883" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" role="img">
+  <title>Standalone HTML migration report</title>
+  <rect x="1" y="1" width="46" height="46" rx="12" fill="#42b883" fill-opacity=".12" stroke="none"/>
+  <rect x="10" y="12" width="28" height="24" rx="3"/>
+  <path d="M10 18h28"/>
+  <path d="M13.5 15h.01M16.5 15h.01"/>
+  <path d="M16 31v-5M22 31v-9M28 31v-3M34 31v-7" stroke="#2c8c63"/>
+</svg>

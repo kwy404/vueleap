@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#42b883" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" role="img">
+  <title>Scan a Vue 2 project for Vue 3 breaking changes</title>
+  <rect x="1" y="1" width="46" height="46" rx="12" fill="#42b883" fill-opacity=".12" stroke="none"/>
+  <path d="M14 11h13l6 6v8"/>
+  <path d="M27 11v6h6"/>
+  <path d="M14 11v26h9"/>
+  <path d="M18 19h6M18 24h5M18 29h4"/>
+  <circle cx="31" cy="30" r="6"/>
+  <path d="M35.5 34.5 39 38"/>
+</svg>

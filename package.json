@@ -1,0 +1,94 @@
+{
+  "name": "vueleap",
+  "version": "0.1.0",
+  "description": "Migrate Vue 2 to Vue 3 with one command: find every breaking change file by file and line by line, get the exact @vue/compat flags your project needs, and apply safe automatic fixes.",
+  "keywords": [
+    "vue",
+    "vue2",
+    "vue3",
+    "vue 2 to vue 3",
+    "migrate vue 2 to vue 3",
+    "vue 3 migration",
+    "vue 3 migration tool",
+    "vue migration",
+    "vue upgrade",
+    "vue 2 end of life",
+    "vue 2 eol",
+    "vue breaking changes",
+    "vue 3 breaking changes",
+    "breaking changes checker",
+    "vue compat",
+    "@vue/compat",
+    "vue compat build flags",
+    "migration build",
+    "codemod",
+    "vue codemod",
+    "vue2to3",
+    "vue-cli",
+    "static analysis",
+    "linter",
+    "cli"
+  ],
+  "homepage": "https://kwy404.github.io/vueleap/",
+  "bugs": {
+    "url": "https://github.com/kwy404/vueleap/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kwy404/vueleap.git"
+  },
+  "license": "MIT",
+  "author": "Alexandre Kohler (https://github.com/kwy404)",
+  "type": "module",
+  "bin": {
+    "vueleap": "dist/bin.js",
+    "vue2to3": "dist/bin.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.map",
+    "README.md",
+    "README.pt-BR.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:update": "vitest run -u",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.29.9",
+    "@babel/types": "^7.29.8",
+    "@vue/compiler-dom": "^3.5.43",
+    "@vue/compiler-sfc": "^3.5.43",
+    "diff": "^8.0.4",
+    "ignore": "^7.0.12",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^18.19.130",
+    "@vue/compat": "^3.5.43",
+    "eslint": "^9.39.5",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.2",
+    "vitest": "^3.2.7",
+    "vue": "^3.5.43"
+  }
+}

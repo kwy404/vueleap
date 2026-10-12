@@ -1,0 +1,24 @@
+/* Global transitions. .v-enter in this comment must not be rewritten. */
+.v-enter,
+.v-leave-to {
+  opacity: 0;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.slide-enter-active {
+  transition: transform 0.3s;
+}
+
+.slide-enter,
+.slide-leave-to {
+  transform: translateX(100%);
+}
+
+// Not a transition: no slide-like name, never touched.
+.btn-enter {
+  font-weight: bold;
+}

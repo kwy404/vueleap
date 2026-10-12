@@ -1,0 +1,339 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`cli > prints only the compat configuration 1`] = `
+"// main.js (with 'vue' aliased to '@vue/compat')
+import { configureCompat } from 'vue'
+
+configureCompat({
+  MODE: 3,
+  CUSTOM_DIR: true,
+  GLOBAL_DELETE: true,
+  GLOBAL_EXTEND: true,
+  GLOBAL_SET: true,
+  INSTANCE_EVENT_EMITTER: true,
+  INSTANCE_LISTENERS: true,
+  OPTIONS_BEFORE_DESTROY: true,
+  OPTIONS_DESTROYED: true,
+  RENDER_FUNCTION: true,
+  TRANSITION_CLASSES: true,
+  WATCH_ARRAY: true,
+})
+
+// vite.config.js
+import vue from '@vitejs/plugin-vue'
+
+export default {
+  resolve: { alias: { vue: '@vue/compat' } },
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          compatConfig: {
+            MODE: 3,
+            COMPILER_FILTERS: true,
+          },
+        },
+      },
+    }),
+  ],
+}
+"
+`;
+
+exports[`cli > prints the pretty report 1`] = `
+"vueleap v0.1.0  Vue 2 to Vue 3 migration report
+
+error  global-api  Global Vue API moved to the app instance (8)
+       https://v3-migration.vuejs.org/breaking-changes/global-api
+       compat: GLOBAL_OBSERVABLE, GLOBAL_PRIVATE_UTIL
+  src/legacy/inline.js:3:1  Vue.component is removed from the global API: use app.component().
+  src/main.js:16:1          Vue.use is removed from the global API: use app.use().
+  src/main.js:17:1          Vue.mixin is removed from the global API: use app.mixin().
+  src/main.js:18:1          Vue.component is removed from the global API: use app.component().
+  src/main.js:19:1          Vue.directive is removed from the global API: use app.directive().
+  src/main.js:20:1          Vue.directive is removed from the global API: use app.directive().
+  src/router/index.js:5:1   Vue.use is removed from the global API: use app.use().
+  src/store/index.js:4:1    Vue.use is removed from the global API: use app.use().
+
+error  filters  Filters are removed (6)
+       https://v3-migration.vuejs.org/breaking-changes/filters
+       compat: COMPILER_FILTERS, FILTERS
+  src/components/ProductList.vue:5:25  Filter "capitalize" used in a template expression. Call a method or use a computed property instead.
+  src/components/ProductList.vue:5:64  Filter "currency" used in a template expression. Call a method or use a computed property instead.
+  src/components/ProductList.vue:6:69  Filter "capitalize" used in a template expression. Call a method or use a computed property instead.
+  src/components/ProductList.vue:30:5  Local filter "capitalize" is removed: turn it into a method or a computed property.
+  src/legacy/inline.js:7:55            Filter "number" used in a template expression. Call a method or use a computed property instead.
+  src/main.js:26:1                     Vue.filter is removed: expose a helper through app.config.globalProperties or import a function.
+
+error  set-delete  $set, $delete, Vue.set and Vue.delete are removed (5)
+       https://v3-migration.vuejs.org/breaking-changes/#removed-apis
+       compat: GLOBAL_SET, GLOBAL_DELETE, INSTANCE_SET, INSTANCE_DELETE
+  src/components/ProductList.vue:55:12  $set is removed: assign the property directly, Vue 3 tracks it.
+  src/store/index.js:10:7               Vue.set is removed: assign the property directly, Vue 3 tracks it.
+  src/store/index.js:13:7               Vue.delete is removed: use the delete operator, Vue 3 tracks it.
+  src/views/Home.vue:23:10              $set is removed: assign the property directly, Vue 3 tracks it.
+  src/views/Home.vue:24:10              $delete is removed: use the delete operator, Vue 3 tracks it.
+
+error  directive-hooks  Custom directive hooks are renamed (4)  [4 fixable]
+       https://v3-migration.vuejs.org/breaking-changes/custom-directives
+       compat: CUSTOM_DIR
+  src/directives/tooltip.js:2:3  Directive hook bind is renamed to beforeMount.
+  src/directives/tooltip.js:5:3  Directive hook componentUpdated is renamed to updated.
+  src/directives/tooltip.js:8:3  Directive hook unbind is renamed to unmounted.
+  src/main.js:21:3               Directive hook inserted is renamed to mounted.
+
+error  destroy-hooks  beforeDestroy and destroyed are renamed (3)  [3 fixable]
+       https://v3-migration.vuejs.org/breaking-changes/#other-minor-changes
+       compat: OPTIONS_BEFORE_DESTROY, OPTIONS_DESTROYED
+  src/components/Modal.vue:27:3        destroyed is renamed to unmounted and is ignored by Vue 3.
+  src/components/ProductList.vue:50:3  beforeDestroy is renamed to beforeUnmount and is ignored by Vue 3.
+  src/mixins/tracking.js:5:3           beforeDestroy is renamed to beforeUnmount and is ignored by Vue 3.
+
+error  keycode-modifiers  KeyCode modifiers are removed (3)  [2 fixable]
+       https://v3-migration.vuejs.org/breaking-changes/keycode-modifiers
+       compat: V_ON_KEYCODE_MODIFIER
+  src/components/TheHeader.vue:5:55  KeyCode modifier .13 is removed: use .enter.
+  src/components/TheHeader.vue:5:74  KeyCode modifier .27 is removed: use .esc.
+  src/components/TheHeader.vue:5:99  KeyCode modifier .112 is removed: use the kebab-case key name instead.
+
+error  scoped-slots  $scopedSlots is removed (2)  [2 fixable]
+       https://v3-migration.vuejs.org/breaking-changes/slots-unification
+       compat: INSTANCE_SCOPED_SLOTS
+  src/components/FancyList.js:7:46  $scopedSlots is removed: use $slots, which now exposes slots as functions.
+  src/components/Modal.vue:7:16     $scopedSlots is removed: use $slots, which now exposes slots as functions.
+
+error  event-emitter  $on, $off and $once are removed (2)
+       https://v3-migration.vuejs.org/breaking-changes/events-api
+       compat: INSTANCE_EVENT_EMITTER
+  src/components/ProductList.vue:47:14  $on is removed: instances are no longer event emitters (use props and emits, provide/inject, a store, or mitt).
+  src/components/ProductList.vue:51:14  $off is removed: instances are no longer event emitters (use props and emits, provide/inject, a store, or mitt).
+
+error  global-mount  new Vue() is replaced by createApp() (2)
+       https://v3-migration.vuejs.org/breaking-changes/global-api#mounting-app-instance
+       compat: GLOBAL_MOUNT
+  src/event-bus.js:3:25  new Vue() is removed: create the app with createApp(App) and call app.mount().
+  src/main.js:29:1       new Vue() is removed: create the app with createApp(App) and call app.mount().
+
+error  component-v-model  v-model on components uses modelValue (2)
+       https://v3-migration.vuejs.org/breaking-changes/v-model
+       compat: COMPONENT_V_MODEL
+  src/components/BaseInput.vue:12:11    Prop "value" combined with $emit('input'): v-model on components now passes modelValue and listens to update:modelValue.
+  src/components/CustomSelect.vue:10:3  The model option is removed: v-model now uses the modelValue prop and the update:modelValue event (or v-model:name arguments).
+
+error  render-function-h  Render functions no longer receive h (2)
+       https://v3-migration.vuejs.org/breaking-changes/render-function-api
+       compat: RENDER_FUNCTION
+  src/components/FancyList.js:4:10  render(h) no longer receives h: import { h } from 'vue' and update the VNode props format.
+  src/main.js:32:12                 render(h) no longer receives h: import { h } from 'vue' and update the VNode props format.
+
+error  deprecated-slot-syntax  slot and slot-scope attributes are removed (2)
+       https://v2.vuejs.org/v2/guide/components-slots.html#Deprecated-Syntax
+  src/components/LegacyWidget.vue:11:17  The slot attribute is removed: use v-slot (or #name) on a <template>.
+  src/components/ProductList.vue:16:17   slot-scope is removed: use v-slot="props" (or #name="props").
+
+error  listeners  $listeners is removed (1)
+       https://v3-migration.vuejs.org/breaking-changes/listeners-removed
+       compat: INSTANCE_LISTENERS
+  src/components/BaseInput.vue:4:49  $listeners is removed: listeners are now included in $attrs.
+
+error  children  $children is removed (1)
+       https://v3-migration.vuejs.org/breaking-changes/children
+       compat: INSTANCE_CHILDREN
+  src/components/Modal.vue:21:12  $children is removed: use template refs to access child components.
+
+error  destroy  $destroy is removed (1)
+       https://v3-migration.vuejs.org/breaking-changes/#removed-apis
+       compat: INSTANCE_DESTROY
+  src/components/Modal.vue:22:12  $destroy is removed: unmount the app or remove the component with v-if.
+
+error  global-prototype  Vue.prototype is replaced by app.config.globalProperties (1)
+       https://v3-migration.vuejs.org/breaking-changes/global-api#vue-prototype-replaced-by-config-globalproperties
+       compat: GLOBAL_PROTOTYPE
+  src/main.js:27:1  Vue.prototype is removed: use app.config.globalProperties or provide/inject.
+
+error  config-key-codes  Vue.config.keyCodes is removed (1)
+       https://v3-migration.vuejs.org/breaking-changes/keycode-modifiers
+       compat: CONFIG_KEY_CODES
+  src/main.js:14:1  Vue.config.keyCodes is removed: use kebab-case key names in v-on modifiers.
+
+error  sync-modifier  .sync is replaced by v-model:prop (1)  [1 fixable]
+       https://v3-migration.vuejs.org/breaking-changes/v-model
+       compat: COMPILER_V_BIND_SYNC
+  src/components/ProductList.vue:6:23  .sync is removed: use v-model:product="selected" instead.
+
+error  functional-components  Functional components changed (1)
+       https://v3-migration.vuejs.org/breaking-changes/functional-components
+       compat: COMPONENT_FUNCTIONAL
+  src/components/BaseButton.vue:1:11  <template functional> is removed: use a regular component (or a plain function).
+
+error  inline-template  inline-template is removed (1)
+       https://v3-migration.vuejs.org/breaking-changes/inline-template-attribute
+       compat: COMPILER_INLINE_TEMPLATE
+  src/components/LegacyWidget.vue:3:19  inline-template is removed: move the markup into the component or pass it as a slot.
+
+error  template-v-for-key  Key must be on <template v-for> (1)
+       https://v3-migration.vuejs.org/breaking-changes/key-attribute
+  src/components/ProductList.vue:11:13  Move this key to the parent <template v-for>: keys on children of <template v-for> are a compile error in Vue 3.
+
+error  v-if-v-for  v-if now has higher priority than v-for (1)
+       https://v3-migration.vuejs.org/breaking-changes/v-if-v-for
+       compat: COMPILER_V_IF_V_FOR_PRECEDENCE
+  src/components/ProductList.vue:4:39  v-if and v-for on the same element: in Vue 3 v-if runs first and cannot see the loop variable.
+
+error  data-object  data must be a function (1)
+       https://v3-migration.vuejs.org/breaking-changes/data-option
+       compat: OPTIONS_DATA_FN
+  src/components/LegacyWidget.vue:21:3  data must be a function: use data() { return { ... } }.
+
+error  vue-router-v3  vue-router 3 does not support Vue 3 (1)
+       https://router.vuejs.org/guide/migration/
+  package.json:13:5  vue-router ^3.5.4 only works with Vue 2: upgrade to vue-router 4 (createRouter, createWebHistory).
+
+error  vuex-v3  Vuex 3 does not support Vue 3 (1)
+       https://vuex.vuejs.org/guide/migrating-to-4-0-from-3-x.html
+  package.json:14:5  vuex ^3.6.2 only works with Vue 2: upgrade to Vuex 4 (createStore) or migrate to Pinia, the recommended store for Vue 3.
+
+error  vue2-libraries  Vue 2 only library (1)
+       https://v3-migration.vuejs.org/
+  package.json:10:5  bootstrap-vue ^2.23.1: BootstrapVue only supports Vue 2. Migrate to bootstrap-vue-next (Bootstrap 5) or plain Bootstrap 5 markup.
+
+warn   transition-classes  Transition classes renamed (4)  [4 fixable]
+       https://v3-migration.vuejs.org/breaking-changes/transition
+       compat: TRANSITION_CLASSES
+  src/App.vue:34:1                  .fade-enter is renamed to .fade-enter-from in Vue 3.
+  src/components/Modal.vue:38:1     .list-enter is renamed to .list-enter-from in Vue 3.
+  src/styles/transitions.scss:2:1   .v-enter is renamed to .v-enter-from in Vue 3.
+  src/styles/transitions.scss:16:1  .slide-enter is renamed to .slide-enter-from in Vue 3.
+
+warn   hook-events  hook: lifecycle events are renamed (2)  [1 fixable]
+       https://v3-migration.vuejs.org/breaking-changes/vnode-lifecycle-events
+       compat: INSTANCE_EVENT_HOOKS
+  src/components/Modal.vue:2:23         @hook:mounted is now @vue:mounted.
+  src/components/ProductList.vue:48:10  $once('hook:beforeDestroy') no longer works: use the lifecycle hook directly, or @vue:beforeUnmount on the parent template.
+
+warn   native-modifier  The .native modifier is removed (2)
+       https://v3-migration.vuejs.org/breaking-changes/v-on-native-modifier-removed
+       compat: COMPILER_V_ON_NATIVE
+  src/App.vue:3:47           .native is removed: declare the events the child emits with "emits", other listeners fall through to its root element.
+  src/legacy/inline.js:7:28  .native is removed: declare the events the child emits with "emits", other listeners fall through to its root element.
+
+warn   v-bind-object-order  v-bind="object" is order sensitive (2)
+       https://v3-migration.vuejs.org/breaking-changes/v-bind
+       compat: COMPILER_V_BIND_OBJECT_ORDER
+  src/components/BaseInput.vue:4:27     v-bind="$attrs" comes after value: in Vue 3 the object now overrides those attributes. Move it first to keep Vue 2 behavior.
+  src/components/LegacyWidget.vue:9:37  v-bind="widgetAttrs" comes after id: in Vue 3 the object now overrides those attributes. Move it first to keep Vue 2 behavior.
+
+warn   vue2-tooling  Vue 2 build or test tooling (2)
+       https://v3-migration.vuejs.org/migration-build#installation
+  package.json:18:5  @vue/test-utils ^1.3.6: @vue/test-utils 1 is for Vue 2: upgrade to @vue/test-utils 2.
+  package.json:19:5  vue-template-compiler ^2.6.14: vue-template-compiler is Vue 2 only: remove it, Vue 3 ships @vue/compiler-sfc.
+
+warn   config-production-tip  Vue.config.productionTip is removed (1)  [1 fixable]
+       https://v3-migration.vuejs.org/breaking-changes/global-api#config-productiontip-removed
+       compat: CONFIG_PRODUCTION_TIP
+  src/main.js:11:1  Vue.config.productionTip is removed: delete this line.
+
+warn   config-ignored-elements  Vue.config.ignoredElements is replaced by isCustomElement (1)
+       https://v3-migration.vuejs.org/breaking-changes/global-api#config-ignoredelements-is-now-config-compileroptions-iscustomelement
+       compat: CONFIG_IGNORED_ELEMENTS
+  src/main.js:13:1  Vue.config.ignoredElements is removed: use compilerOptions.isCustomElement (a function).
+
+warn   global-config  Vue.config moved to app.config (1)
+       https://v3-migration.vuejs.org/breaking-changes/global-api#a-new-global-api-createapp
+       compat: CONFIG_SILENT, CONFIG_DEVTOOLS, CONFIG_OPTION_MERGE_STRATS
+  src/main.js:12:1  Vue.config.devtools is not available in Vue 3: use app.config on the instance returned by createApp().
+
+warn   is-on-element  is on native elements needs the vue: prefix (1)
+       https://v3-migration.vuejs.org/breaking-changes/custom-elements-interop#customized-built-in-elements
+       compat: COMPILER_IS_ON_ELEMENT
+  src/components/LegacyWidget.vue:7:11  is="product-row" on <tr> creates a customized built-in element in Vue 3. Use is="vue:product-row" to render a component.
+
+warn   vue-version  Vue 2 dependency (1)
+       https://v3-migration.vuejs.org/migration-build
+  package.json:12:5  vue ^2.6.14 is Vue 2: upgrade to vue@^3.5. To migrate step by step, alias vue to @vue/compat first.
+
+info   transition-group-root  <transition-group> renders no wrapper (1)
+       https://v3-migration.vuejs.org/breaking-changes/transition-group
+       compat: TRANSITION_GROUP_ROOT
+  src/components/Modal.vue:3:5  <transition-group> without a tag prop no longer renders a wrapper <span>.
+
+info   attrs-class-style  $attrs now includes class and style (1)
+       https://v3-migration.vuejs.org/breaking-changes/attrs-includes-class-style
+       compat: INSTANCE_ATTRS_CLASS_STYLE
+  src/components/BaseInput.vue:4:35  $attrs now also contains class and style.
+
+info   watch-array  Array watchers need deep for mutations (1)
+       https://v3-migration.vuejs.org/breaking-changes/watch
+       compat: WATCH_ARRAY
+  src/components/ProductList.vue:38:5  "products" is an array: this watcher only fires when the array is replaced. Add deep: true to react to mutations.
+
+Summary
+  Files scanned     21
+  Files affected    19
+  Findings          75  (55 errors, 17 warnings, 3 info)
+  Auto fixable      18  (preview with --fix, apply with --fix --write)
+  Effort score      59  (large)
+
+Minimal @vue/compat configuration for this project
+  // main.js (with 'vue' aliased to '@vue/compat')
+  import { configureCompat } from 'vue'
+  
+  configureCompat({
+    MODE: 3,
+    COMPONENT_FUNCTIONAL: true,
+    COMPONENT_V_MODEL: true,
+    CONFIG_DEVTOOLS: true,
+    CONFIG_IGNORED_ELEMENTS: true,
+    CONFIG_KEY_CODES: true,
+    CONFIG_PRODUCTION_TIP: true,
+    CUSTOM_DIR: true,
+    FILTERS: true,
+    GLOBAL_DELETE: true,
+    GLOBAL_MOUNT: true,
+    GLOBAL_PROTOTYPE: true,
+    GLOBAL_SET: true,
+    INSTANCE_ATTRS_CLASS_STYLE: true,
+    INSTANCE_CHILDREN: true,
+    INSTANCE_DELETE: true,
+    INSTANCE_DESTROY: true,
+    INSTANCE_EVENT_EMITTER: true,
+    INSTANCE_EVENT_HOOKS: true,
+    INSTANCE_LISTENERS: true,
+    INSTANCE_SCOPED_SLOTS: true,
+    INSTANCE_SET: true,
+    OPTIONS_BEFORE_DESTROY: true,
+    OPTIONS_DATA_FN: true,
+    OPTIONS_DESTROYED: true,
+    RENDER_FUNCTION: true,
+    TRANSITION_CLASSES: true,
+    TRANSITION_GROUP_ROOT: true,
+    V_ON_KEYCODE_MODIFIER: true,
+    WATCH_ARRAY: true,
+  })
+  
+  // vite.config.js
+  import vue from '@vitejs/plugin-vue'
+  
+  export default {
+    resolve: { alias: { vue: '@vue/compat' } },
+    plugins: [
+      vue({
+        template: {
+          compilerOptions: {
+            compatConfig: {
+              MODE: 3,
+              COMPILER_FILTERS: true,
+              COMPILER_INLINE_TEMPLATE: true,
+              COMPILER_IS_ON_ELEMENT: true,
+              COMPILER_V_BIND_OBJECT_ORDER: true,
+              COMPILER_V_BIND_SYNC: true,
+              COMPILER_V_IF_V_FOR_PRECEDENCE: true,
+              COMPILER_V_ON_NATIVE: true,
+            },
+          },
+        },
+      }),
+    ],
+  }
+"
+`;

@@ -1,0 +1,16 @@
+{
+  "name": "edge-cases",
+  "private": true,
+  "dependencies": {
+    "element-ui": "^2.15.14",
+    "pinia": "^2.1.7",
+    "vue": "~2.7.16",
+    "vue-router": "^4.2.5",
+    "vuetify": "^2.7.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue2": "^2.3.1",
+    "@vue/composition-api": "^1.7.2",
+    "vue-property-decorator": "^9.1.2"
+  }
+}

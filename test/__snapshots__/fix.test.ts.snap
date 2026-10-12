@@ -1,0 +1,402 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`fix > previews diffs without writing by default 1`] = `
+"--- a/src/App.vue
++++ b/src/App.vue
+@@ -32,5 +32,5 @@
+   transition: opacity 0.15s;
+ }
+-.fade-enter,
++.fade-enter-from,
+ .fade-leave-to {
+   opacity: 0;
+
+--- a/src/components/FancyList.js
++++ b/src/components/FancyList.js
+@@ -5,5 +5,5 @@
+     return h(
+       'ul',
+-      this.items.map((item) => h('li', [this.$scopedSlots.default({ item })])),
++      this.items.map((item) => h('li', [this.$slots.default({ item })])),
+     )
+   },
+
+--- a/src/components/Modal.vue
++++ b/src/components/Modal.vue
+@@ -1,9 +1,9 @@
+ <template>
+-  <div class="modal" @hook:mounted="onChildMounted">
++  <div class="modal" @vue:mounted="onChildMounted">
+     <transition-group name="list">
+       <p v-for="message in messages" :key="message.id">{{ message.text }}</p>
+     </transition-group>
+     <slot name="footer" :close="close" />
+-    <div v-if="$scopedSlots.extra" class="extra">
++    <div v-if="$slots.extra" class="extra">
+       <slot name="extra" />
+     </div>
+@@ -25,5 +25,5 @@
+     onChildMounted() {},
+   },
+-  destroyed() {
++  unmounted() {
+     document.body.classList.remove('modal-open')
+   },
+@@ -36,5 +36,5 @@
+   transition: all 0.3s;
+ }
+-.list-enter,
++.list-enter-from,
+ .list-leave-to {
+   opacity: 0;
+
+--- a/src/components/ProductList.vue
++++ b/src/components/ProductList.vue
+@@ -4,5 +4,5 @@
+       <li v-for="product in products" v-if="product.visible" :key="product.id">
+         {{ product.name | capitalize }} costs {{ product.price | currency('EUR') }}
+-        <product-card :product.sync="selected" :title="product.name | capitalize" />
++        <product-card v-model:product="selected" :title="product.name | capitalize" />
+       </li>
+     </ul>
+@@ -48,5 +48,5 @@
+     this.$once('hook:beforeDestroy', () => clearInterval(this.timer))
+   },
+-  beforeDestroy() {
++  beforeUnmount() {
+     EventBus.$off('cart:add', this.onAdd)
+   },
+
+--- a/src/components/TheHeader.vue
++++ b/src/components/TheHeader.vue
+@@ -3,5 +3,5 @@
+     <base-button @click="$emit('click')">Menu</base-button>
+     <span class="badge">{{ cartCount }}</span>
+-    <input v-model="query" placeholder="Search" @keyup.13="search" @keyup.27="query = ''" @keydown.112="help" />
++    <input v-model="query" placeholder="Search" @keyup.enter="search" @keyup.esc="query = ''" @keydown.112="help" />
+   </header>
+ </template>
+
+--- a/src/directives/tooltip.js
++++ b/src/directives/tooltip.js
+@@ -1,10 +1,10 @@
+ export default {
+-  bind(el, binding) {
++  beforeMount(el, binding) {
+     el.setAttribute('title', binding.value)
+   },
+-  componentUpdated(el, binding) {
++  updated(el, binding) {
+     el.setAttribute('title', binding.value)
+   },
+-  unbind(el) {
++  unmounted(el) {
+     el.removeAttribute('title')
+   },
+
+--- a/src/main.js
++++ b/src/main.js
+@@ -9,5 +9,4 @@
+ import { api } from './api'
+ 
+-Vue.config.productionTip = false
+ Vue.config.devtools = true
+ Vue.config.ignoredElements = ['ion-icon']
+@@ -19,5 +18,5 @@
+ Vue.directive('tooltip', tooltip)
+ Vue.directive('focus', {
+-  inserted(el) {
++  mounted(el) {
+     el.focus()
+   },
+
+--- a/src/mixins/tracking.js
++++ b/src/mixins/tracking.js
+@@ -3,5 +3,5 @@
+     this.trackedAt = Date.now()
+   },
+-  beforeDestroy() {
++  beforeUnmount() {
+     this.trackedAt = null
+   },
+
+--- a/src/styles/transitions.scss
++++ b/src/styles/transitions.scss
+@@ -1,4 +1,4 @@
+ /* Global transitions. .v-enter in this comment must not be rewritten. */
+-.v-enter,
++.v-enter-from,
+ .v-leave-to {
+   opacity: 0;
+@@ -14,5 +14,5 @@
+ }
+ 
+-.slide-enter,
++.slide-enter-from,
+ .slide-leave-to {
+   transform: translateX(100%);
+"
+`;
+
+exports[`fix > writes safe fixes, keeps code parseable and is idempotent 1`] = `
+{
+  "src/App.vue": "<template>
+  <div id="app">
+    <the-header :cart-count="cartCount" @click.native="toggleMenu" />
+    <transition name="fade" mode="out-in">
+      <router-view />
+    </transition>
+  </div>
+</template>
+
+<script>
+import TheHeader from './components/TheHeader.vue'
+
+export default {
+  name: 'App',
+  components: { TheHeader },
+  computed: {
+    cartCount() {
+      return Object.keys(this.$store.state.cart).length
+    },
+  },
+  methods: {
+    toggleMenu() {
+      this.$root.$emit('menu:toggle')
+    },
+  },
+}
+</script>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
+",
+  "src/components/FancyList.js": "export default {
+  name: 'FancyList',
+  props: { items: { type: Array, required: true } },
+  render(h) {
+    return h(
+      'ul',
+      this.items.map((item) => h('li', [this.$slots.default({ item })])),
+    )
+  },
+}
+",
+  "src/components/Modal.vue": "<template>
+  <div class="modal" @vue:mounted="onChildMounted">
+    <transition-group name="list">
+      <p v-for="message in messages" :key="message.id">{{ message.text }}</p>
+    </transition-group>
+    <slot name="footer" :close="close" />
+    <div v-if="$slots.extra" class="extra">
+      <slot name="extra" />
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Modal',
+  data() {
+    return { messages: [] }
+  },
+  methods: {
+    close() {
+      this.$children.forEach((child) => child.reset && child.reset())
+      this.$destroy()
+      this.$el.remove()
+    },
+    onChildMounted() {},
+  },
+  unmounted() {
+    document.body.classList.remove('modal-open')
+  },
+}
+</script>
+
+<style scoped>
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+}
+</style>
+",
+  "src/components/ProductList.vue": "<template>
+  <div class="products">
+    <ul>
+      <li v-for="product in products" v-if="product.visible" :key="product.id">
+        {{ product.name | capitalize }} costs {{ product.price | currency('EUR') }}
+        <product-card v-model:product="selected" :title="product.name | capitalize" />
+      </li>
+    </ul>
+    <dl>
+      <template v-for="spec in specs">
+        <dt :key="spec.id">{{ spec.label }}</dt>
+        <dd>{{ spec.value || 'n/a' }}</dd>
+      </template>
+    </dl>
+    <fancy-list :items="products">
+      <template slot-scope="{ item }">{{ item.name }}</template>
+    </fancy-list>
+  </div>
+</template>
+
+<script>
+import { EventBus } from '../event-bus'
+import FancyList from './FancyList'
+import ProductCard from './ProductCard.vue'
+
+export default {
+  name: 'ProductList',
+  components: { FancyList, ProductCard },
+  filters: {
+    capitalize(value) {
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    },
+  },
+  data() {
+    return { products: [], specs: [], selected: null }
+  },
+  watch: {
+    products(list) {
+      this.$emit('count', list.length)
+    },
+    specs: {
+      handler() {},
+      deep: true,
+    },
+  },
+  mounted() {
+    EventBus.$on('cart:add', this.onAdd)
+    this.$once('hook:beforeDestroy', () => clearInterval(this.timer))
+  },
+  beforeUnmount() {
+    EventBus.$off('cart:add', this.onAdd)
+  },
+  methods: {
+    onAdd(product) {
+      this.$set(product, 'inCart', true)
+    },
+  },
+}
+</script>
+",
+  "src/components/TheHeader.vue": "<template>
+  <header class="header">
+    <base-button @click="$emit('click')">Menu</base-button>
+    <span class="badge">{{ cartCount }}</span>
+    <input v-model="query" placeholder="Search" @keyup.enter="search" @keyup.esc="query = ''" @keydown.112="help" />
+  </header>
+</template>
+
+<script>
+import { EventBus } from '../event-bus'
+
+export default {
+  name: 'TheHeader',
+  props: { cartCount: { type: Number, default: 0 } },
+  data() {
+    return { query: '' }
+  },
+  methods: {
+    search() {
+      EventBus.$emit('search', this.query)
+    },
+    help() {},
+  },
+}
+</script>
+",
+  "src/directives/tooltip.js": "export default {
+  beforeMount(el, binding) {
+    el.setAttribute('title', binding.value)
+  },
+  updated(el, binding) {
+    el.setAttribute('title', binding.value)
+  },
+  unmounted(el) {
+    el.removeAttribute('title')
+  },
+}
+",
+  "src/main.js": "import Vue from 'vue'
+import { BootstrapVue } from 'bootstrap-vue'
+import App from './App.vue'
+import router from './router'
+import store from './store'
+import BaseButton from './components/BaseButton.vue'
+import tooltip from './directives/tooltip'
+import tracking from './mixins/tracking'
+import { api } from './api'
+
+Vue.config.devtools = true
+Vue.config.ignoredElements = ['ion-icon']
+Vue.config.keyCodes = { f2: 113 }
+
+Vue.use(BootstrapVue)
+Vue.mixin(tracking)
+Vue.component('BaseButton', BaseButton)
+Vue.directive('tooltip', tooltip)
+Vue.directive('focus', {
+  mounted(el) {
+    el.focus()
+  },
+})
+
+Vue.filter('currency', (value) => \`$\${Number(value).toFixed(2)}\`)
+Vue.prototype.$api = api
+
+new Vue({
+  router,
+  store,
+  render: (h) => h(App),
+}).$mount('#app')
+",
+  "src/mixins/tracking.js": "export default {
+  created() {
+    this.trackedAt = Date.now()
+  },
+  beforeUnmount() {
+    this.trackedAt = null
+  },
+}
+",
+  "src/styles/transitions.scss": "/* Global transitions. .v-enter in this comment must not be rewritten. */
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.slide-enter-active {
+  transition: transform 0.3s;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
+}
+
+// Not a transition: no slide-like name, never touched.
+.btn-enter {
+  font-weight: bold;
+}
+",
+}
+`;

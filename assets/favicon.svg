@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>vueleap</title>
+  <circle cx="19" cy="22" r="11" fill="#42b883"/>
+  <circle cx="45" cy="22" r="11" fill="#42b883"/>
+  <ellipse cx="32" cy="40" rx="28" ry="20" fill="#42b883"/>
+  <circle cx="19" cy="22" r="7" fill="#ffffff"/>
+  <circle cx="45" cy="22" r="7" fill="#ffffff"/>
+  <circle cx="21" cy="23" r="3.6" fill="#213547"/>
+  <circle cx="47" cy="23" r="3.6" fill="#213547"/>
+  <path d="M21 41 Q 32 50 43 41" fill="none" stroke="#213547" stroke-width="3.4" stroke-linecap="round"/>
+</svg>

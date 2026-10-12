@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@vue/compat build flags explained: configureCompat and compatConfig</title>
+<meta name="description" content="How the Vue 3 migration build works, what MODE 2 and MODE 3 mean, every @vue/compat flag vueleap can detect and how to get the minimal configureCompat for your project.">
+<link rel="canonical" href="https://kwy404.github.io/vueleap/vue-compat-build-flags.html">
+<meta name="theme-color" content="#42b883">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="vueleap">
+<meta property="og:title" content="@vue/compat build flags explained: configureCompat and compatConfig">
+<meta property="og:description" content="How the Vue 3 migration build works, what MODE 2 and MODE 3 mean, every @vue/compat flag vueleap can detect and how to get the minimal configureCompat for your project.">
+<meta property="og:url" content="https://kwy404.github.io/vueleap/vue-compat-build-flags.html">
+<meta property="og:image" content="https://kwy404.github.io/vueleap/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="vueleap, the Vue 2 to Vue 3 migration tool, with Hop the frog leaping from lily pad 2 to lily pad 3">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="@vue/compat build flags explained: configureCompat and compatConfig">
+<meta name="twitter:description" content="How the Vue 3 migration build works, what MODE 2 and MODE 3 mean, every @vue/compat flag vueleap can detect and how to get the minimal configureCompat for your project.">
+<meta name="twitter:image" content="https://kwy404.github.io/vueleap/og.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"@vue/compat build flags explained: configureCompat and compatConfig","description":"How the Vue 3 migration build works, what MODE 2 and MODE 3 mean, every @vue/compat flag vueleap can detect and how to get the minimal configureCompat for your project.","url":"https://kwy404.github.io/vueleap/vue-compat-build-flags.html","mainEntityOfPage":"https://kwy404.github.io/vueleap/vue-compat-build-flags.html","image":"https://kwy404.github.io/vueleap/og.png","datePublished":"2026-10-12","dateModified":"2026-10-12","inLanguage":"en","author":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"publisher":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"about":["Vue.js","Vue 3 migration"]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use @vue/compat?","acceptedAnswer":{"@type":"Answer","text":"Use it for medium and large apps that cannot be migrated in one go: it lets the app run on Vue 3 while Vue 2 code is still being converted. It is a migration aid, so plan to remove it. Small apps are often faster to migrate directly."}},{"@type":"Question","name":"What is the difference between configureCompat and compatConfig?","acceptedAnswer":{"@type":"Answer","text":"`configureCompat()` sets runtime flags in the browser. Template flags (the `COMPILER_` ones) are applied when templates are compiled, so they go in `compilerOptions.compatConfig` of your build tool plugin."}},{"@type":"Question","name":"What does MODE 3 mean?","acceptedAnswer":{"@type":"Answer","text":"With `MODE: 3`, every feature behaves like Vue 3 unless its flag is set to `true`. With the default `MODE: 2`, everything behaves like Vue 2 unless its flag is set to `false`."}}]}]}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site"><div class="container">
+<a class="logo" href="./"><img src="favicon.svg" alt="" width="34" height="34"><b>vue<span>leap</span></b></a>
+<nav class="main" aria-label="Main"><a href="migrate-vue-2-to-vue-3.html">Migration guide</a><a href="vue-3-breaking-changes-checklist.html">Breaking changes</a><a href="vue-compat-build-flags.html" aria-current="page">Compat flags</a><a href="report-example.html">Sample report</a><a href="https://github.com/kwy404/vueleap">GitHub</a></nav>
+<button class="theme-toggle" type="button" id="theme" aria-label="Toggle color theme">Theme</button>
+</div></header>
+<main id="content">
+<div class="container narrow">
+<h1>@vue/compat build flags explained</h1>
+<p class="lede"><code>@vue/compat</code>, the Vue 3 migration build, is a build of Vue 3 that can emulate Vue 2 behavior feature by feature. Each feature has a flag. Knowing which flags your code needs tells you exactly what is left to migrate.</p>
+<p class="meta">Updated 2026-10-12</p>
+<h2>Runtime flags and compiler flags</h2>
+<p>Runtime flags (such as <code>GLOBAL_MOUNT</code> or <code>INSTANCE_EVENT_EMITTER</code>) are set with <code>configureCompat()</code>, globally or per component with the <code>compatConfig</code> option. Compiler flags (the <code>COMPILER_</code> ones, such as <code>COMPILER_FILTERS</code>) change how templates compile and are set in the build tool.</p>
+<div class="compare"><figure class="before"><figcaption>Opt out (MODE 2)</figcaption><pre><code class="language-js">// Default: Vue 2 behavior everywhere (MODE: 2)
+import { configureCompat } from 'vue'
+
+// opt out feature by feature
+configureCompat({
+  FILTERS: false,
+  INSTANCE_EVENT_EMITTER: false,
+})</code></pre></figure><figure class="after"><figcaption>Opt in (MODE 3)</figcaption><pre><code class="language-js">// Recommended with vueleap: Vue 3 by default
+import { configureCompat } from 'vue'
+
+// opt in only to what the code still needs
+configureCompat({
+  MODE: 3,
+  FILTERS: true,
+  INSTANCE_EVENT_EMITTER: true,
+})</code></pre></figure></div>
+<h2>Get the minimal flags for your project</h2>
+<p>vueleap maps every finding to its flag and prints the smallest configuration that keeps your app running, split into runtime and compiler parts:</p>
+<pre><code class="language-bash">npx vueleap --compat</code></pre>
+<p>As you fix findings, rerun the command: flags disappear from the output, and you can delete them from your config. When nothing is left, remove <code>@vue/compat</code>.</p>
+<h2>Flags vueleap detects</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Flag</th><th scope="col">Kind</th><th scope="col">vueleap rules</th></tr></thead><tbody><tr><td><code>COMPILER_FILTERS</code></td><td>Compiler</td><td><code>filters</code>: Filters are removed</td></tr><tr><td><code>COMPILER_INLINE_TEMPLATE</code></td><td>Compiler</td><td><code>inline-template</code>: inline-template is removed</td></tr><tr><td><code>COMPILER_IS_ON_ELEMENT</code></td><td>Compiler</td><td><code>is-on-element</code>: is on native elements needs the vue: prefix</td></tr><tr><td><code>COMPILER_V_BIND_OBJECT_ORDER</code></td><td>Compiler</td><td><code>v-bind-object-order</code>: v-bind=&quot;object&quot; is order sensitive</td></tr><tr><td><code>COMPILER_V_BIND_SYNC</code></td><td>Compiler</td><td><code>sync-modifier</code>: .sync is replaced by v-model:prop</td></tr><tr><td><code>COMPILER_V_IF_V_FOR_PRECEDENCE</code></td><td>Compiler</td><td><code>v-if-v-for</code>: v-if now has higher priority than v-for</td></tr><tr><td><code>COMPILER_V_ON_NATIVE</code></td><td>Compiler</td><td><code>native-modifier</code>: The .native modifier is removed</td></tr><tr><td><code>COMPONENT_FUNCTIONAL</code></td><td>Runtime</td><td><code>functional-components</code>: Functional components changed</td></tr><tr><td><code>COMPONENT_V_MODEL</code></td><td>Runtime</td><td><code>component-v-model</code>: v-model on components uses modelValue</td></tr><tr><td><code>CONFIG_DEVTOOLS</code></td><td>Runtime</td><td><code>global-config</code>: Vue.config moved to app.config</td></tr><tr><td><code>CONFIG_IGNORED_ELEMENTS</code></td><td>Runtime</td><td><code>config-ignored-elements</code>: Vue.config.ignoredElements is replaced by isCustomElement</td></tr><tr><td><code>CONFIG_KEY_CODES</code></td><td>Runtime</td><td><code>config-key-codes</code>: Vue.config.keyCodes is removed</td></tr><tr><td><code>CONFIG_OPTION_MERGE_STRATS</code></td><td>Runtime</td><td><code>global-config</code>: Vue.config moved to app.config</td></tr><tr><td><code>CONFIG_PRODUCTION_TIP</code></td><td>Runtime</td><td><code>config-production-tip</code>: Vue.config.productionTip is removed</td></tr><tr><td><code>CONFIG_SILENT</code></td><td>Runtime</td><td><code>global-config</code>: Vue.config moved to app.config</td></tr><tr><td><code>CUSTOM_DIR</code></td><td>Runtime</td><td><code>directive-hooks</code>: Custom directive hooks are renamed</td></tr><tr><td><code>FILTERS</code></td><td>Runtime</td><td><code>filters</code>: Filters are removed</td></tr><tr><td><code>GLOBAL_DELETE</code></td><td>Runtime</td><td><code>set-delete</code>: $set, $delete, Vue.set and Vue.delete are removed</td></tr><tr><td><code>GLOBAL_EXTEND</code></td><td>Runtime</td><td><code>global-extend</code>: Vue.extend is removed</td></tr><tr><td><code>GLOBAL_MOUNT</code></td><td>Runtime</td><td><code>global-mount</code>: new Vue() is replaced by createApp()</td></tr><tr><td><code>GLOBAL_OBSERVABLE</code></td><td>Runtime</td><td><code>global-api</code>: Global Vue API moved to the app instance</td></tr><tr><td><code>GLOBAL_PRIVATE_UTIL</code></td><td>Runtime</td><td><code>global-api</code>: Global Vue API moved to the app instance</td></tr><tr><td><code>GLOBAL_PROTOTYPE</code></td><td>Runtime</td><td><code>global-prototype</code>: Vue.prototype is replaced by app.config.globalProperties</td></tr><tr><td><code>GLOBAL_SET</code></td><td>Runtime</td><td><code>set-delete</code>: $set, $delete, Vue.set and Vue.delete are removed</td></tr><tr><td><code>INSTANCE_ATTRS_CLASS_STYLE</code></td><td>Runtime</td><td><code>attrs-class-style</code>: $attrs now includes class and style</td></tr><tr><td><code>INSTANCE_CHILDREN</code></td><td>Runtime</td><td><code>children</code>: $children is removed</td></tr><tr><td><code>INSTANCE_DELETE</code></td><td>Runtime</td><td><code>set-delete</code>: $set, $delete, Vue.set and Vue.delete are removed</td></tr><tr><td><code>INSTANCE_DESTROY</code></td><td>Runtime</td><td><code>destroy</code>: $destroy is removed</td></tr><tr><td><code>INSTANCE_EVENT_EMITTER</code></td><td>Runtime</td><td><code>event-emitter</code>: $on, $off and $once are removed</td></tr><tr><td><code>INSTANCE_EVENT_HOOKS</code></td><td>Runtime</td><td><code>hook-events</code>: hook: lifecycle events are renamed</td></tr><tr><td><code>INSTANCE_LISTENERS</code></td><td>Runtime</td><td><code>listeners</code>: $listeners is removed</td></tr><tr><td><code>INSTANCE_SCOPED_SLOTS</code></td><td>Runtime</td><td><code>scoped-slots</code>: $scopedSlots is removed</td></tr><tr><td><code>INSTANCE_SET</code></td><td>Runtime</td><td><code>set-delete</code>: $set, $delete, Vue.set and Vue.delete are removed</td></tr><tr><td><code>OPTIONS_BEFORE_DESTROY</code></td><td>Runtime</td><td><code>destroy-hooks</code>: beforeDestroy and destroyed are renamed</td></tr><tr><td><code>OPTIONS_DATA_FN</code></td><td>Runtime</td><td><code>data-object</code>: data must be a function</td></tr><tr><td><code>OPTIONS_DESTROYED</code></td><td>Runtime</td><td><code>destroy-hooks</code>: beforeDestroy and destroyed are renamed</td></tr><tr><td><code>RENDER_FUNCTION</code></td><td>Runtime</td><td><code>render-function-h</code>: Render functions no longer receive h</td></tr><tr><td><code>TRANSITION_CLASSES</code></td><td>Runtime</td><td><code>transition-classes</code>: Transition classes renamed</td></tr><tr><td><code>TRANSITION_GROUP_ROOT</code></td><td>Runtime</td><td><code>transition-group-root</code>: &lt;transition-group&gt; renders no wrapper</td></tr><tr><td><code>V_ON_KEYCODE_MODIFIER</code></td><td>Runtime</td><td><code>keycode-modifiers</code>: KeyCode modifiers are removed</td></tr><tr><td><code>WATCH_ARRAY</code></td><td>Runtime</td><td><code>watch-array</code>: Array watchers need deep for mutations</td></tr></tbody></table></div>
+<p>The full list of flags, including ones that cannot be detected statically (such as <code>ATTR_FALSE_VALUE</code>), is in the <a href="https://v3-migration.vuejs.org/migration-build#compat-configuration">official compat configuration reference</a>.</p>
+<h2>Frequently asked questions</h2>
+<details class="faq"><summary>Should I use @vue/compat?</summary><p>Use it for medium and large apps that cannot be migrated in one go: it lets the app run on Vue 3 while Vue 2 code is still being converted. It is a migration aid, so plan to remove it. Small apps are often faster to migrate directly.</p></details>
+<details class="faq"><summary>What is the difference between configureCompat and compatConfig?</summary><p><code>configureCompat()</code> sets runtime flags in the browser. Template flags (the <code>COMPILER_</code> ones) are applied when templates are compiled, so they go in <code>compilerOptions.compatConfig</code> of your build tool plugin.</p></details>
+<details class="faq"><summary>What does MODE 3 mean?</summary><p>With <code>MODE: 3</code>, every feature behaves like Vue 3 unless its flag is set to <code>true</code>. With the default <code>MODE: 2</code>, everything behaves like Vue 2 unless its flag is set to <code>false</code>.</p></details>
+<h2>More guides</h2>
+<div class="cards"><a class="card" href="migrate-vue-2-to-vue-3.html"><strong>How to migrate Vue 2 to Vue 3</strong><span>A step by step plan using the migration build and vueleap.</span></a><a class="card" href="vue-3-breaking-changes-checklist.html"><strong>Vue 3 breaking changes checklist</strong><span>All 41 checks, with severity, compat flag and fix.</span></a><a class="card" href="vue-filters-removed-vue-3.html"><strong>Vue filters removed in Vue 3</strong><span>Replace filters with methods, computed properties or globals.</span></a><a class="card" href="vue-event-bus-vue-3.html"><strong>Event bus in Vue 3</strong><span>Replace $on, $off and $once with mitt, props or a store.</span></a><a class="card" href="v-model-changes-vue-3.html"><strong>v-model changes in Vue 3</strong><span>modelValue, update:modelValue, v-model arguments and .sync.</span></a><a class="card" href="vue-2-end-of-life.html"><strong>Vue 2 end of life</strong><span>What the end of support means and how to plan the upgrade.</span></a></div>
+</div>
+</main>
+<footer class="site"><div class="container">
+<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.</div>
+<nav aria-label="Guides"><a href="migrate-vue-2-to-vue-3.html">How to migrate Vue 2 to Vue 3</a><a href="vue-3-breaking-changes-checklist.html">Vue 3 breaking changes checklist</a><a href="vue-compat-build-flags.html">@vue/compat build flags explained</a><a href="vue-filters-removed-vue-3.html">Vue filters removed in Vue 3</a><a href="vue-event-bus-vue-3.html">Event bus in Vue 3</a><a href="v-model-changes-vue-3.html">v-model changes in Vue 3</a><a href="vue-2-end-of-life.html">Vue 2 end of life</a><a href="https://www.npmjs.com/package/vueleap">npm</a></nav>
+</div></footer>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme'),o=['auto','light','dark'];
+function a(t){if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);b.textContent='Theme: '+t}
+var s='auto';try{s=localStorage.getItem('vueleap-theme')||'auto'}catch(e){}a(s);
+b.addEventListener('click',function(){var c=r.getAttribute('data-theme')||'auto',n=o[(o.indexOf(c)+1)%3];a(n);try{localStorage.setItem('vueleap-theme',n)}catch(e){}});
+var c=document.getElementById('copy');if(c)c.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText('npx vueleap').then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)})});})();
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>v-model changes in Vue 3: modelValue, update:modelValue and .sync</title>
+<meta name="description" content="In Vue 3, v-model on components uses the modelValue prop and update:modelValue event, the model option is gone and .sync becomes v-model:prop. See before and after code and find affected components.">
+<link rel="canonical" href="https://kwy404.github.io/vueleap/v-model-changes-vue-3.html">
+<meta name="theme-color" content="#42b883">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="vueleap">
+<meta property="og:title" content="v-model changes in Vue 3: modelValue, update:modelValue and .sync">
+<meta property="og:description" content="In Vue 3, v-model on components uses the modelValue prop and update:modelValue event, the model option is gone and .sync becomes v-model:prop. See before and after code and find affected components.">
+<meta property="og:url" content="https://kwy404.github.io/vueleap/v-model-changes-vue-3.html">
+<meta property="og:image" content="https://kwy404.github.io/vueleap/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="vueleap, the Vue 2 to Vue 3 migration tool, with Hop the frog leaping from lily pad 2 to lily pad 3">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="v-model changes in Vue 3: modelValue, update:modelValue and .sync">
+<meta name="twitter:description" content="In Vue 3, v-model on components uses the modelValue prop and update:modelValue event, the model option is gone and .sync becomes v-model:prop. See before and after code and find affected components.">
+<meta name="twitter:image" content="https://kwy404.github.io/vueleap/og.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"v-model changes in Vue 3: modelValue, update:modelValue and .sync","description":"In Vue 3, v-model on components uses the modelValue prop and update:modelValue event, the model option is gone and .sync becomes v-model:prop. See before and after code and find affected components.","url":"https://kwy404.github.io/vueleap/v-model-changes-vue-3.html","mainEntityOfPage":"https://kwy404.github.io/vueleap/v-model-changes-vue-3.html","image":"https://kwy404.github.io/vueleap/og.png","datePublished":"2026-10-12","dateModified":"2026-10-12","inLanguage":"en","author":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"publisher":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"about":["Vue.js","Vue 3 migration"]}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site"><div class="container">
+<a class="logo" href="./"><img src="favicon.svg" alt="" width="34" height="34"><b>vue<span>leap</span></b></a>
+<nav class="main" aria-label="Main"><a href="migrate-vue-2-to-vue-3.html">Migration guide</a><a href="vue-3-breaking-changes-checklist.html">Breaking changes</a><a href="vue-compat-build-flags.html">Compat flags</a><a href="report-example.html">Sample report</a><a href="https://github.com/kwy404/vueleap">GitHub</a></nav>
+<button class="theme-toggle" type="button" id="theme" aria-label="Toggle color theme">Theme</button>
+</div></header>
+<main id="content">
+<div class="container narrow">
+<h1>v-model changes in Vue 3</h1>
+<p class="lede">On custom components, <code>v-model</code> now passes a <code>modelValue</code> prop and listens to <code>update:modelValue</code>. The <code>value</code> prop and <code>input</code> event convention, the <code>model</code> option and the <code>.sync</code> modifier are gone. Native inputs are not affected.</p>
+<p class="meta">Official guide: <a href="https://v3-migration.vuejs.org/breaking-changes/v-model">v-model, Vue 3 migration guide</a></p>
+<h2>Components using value and input</h2>
+<div class="compare"><figure class="before"><figcaption>Vue 2</figcaption><pre><code class="language-js">export default {
+  props: ['value'],
+  methods: {
+    onInput(event) {
+      this.$emit('input', event.target.value)
+    },
+  },
+}</code></pre></figure><figure class="after"><figcaption>Vue 3</figcaption><pre><code class="language-js">export default {
+  props: ['modelValue'],
+  emits: ['update:modelValue'],
+  methods: {
+    onInput(event) {
+      this.$emit('update:modelValue', event.target.value)
+    },
+  },
+}</code></pre></figure></div>
+<p>Parents keep writing <code>&lt;base-input v-model="email" /&gt;</code>.</p>
+<h2>Components using the model option</h2>
+<div class="compare"><figure class="before"><figcaption>Vue 2</figcaption><pre><code class="language-js">export default {
+  model: { prop: 'checked', event: 'change' },
+  props: ['checked'],
+}
+// parent: &lt;my-checkbox v-model=&quot;agreed&quot; /&gt;</code></pre></figure><figure class="after"><figcaption>Vue 3</figcaption><pre><code class="language-js">export default {
+  props: ['checked'],
+  emits: ['update:checked'],
+}
+// parent: &lt;my-checkbox v-model:checked=&quot;agreed&quot; /&gt;</code></pre></figure></div>
+<h2>.sync becomes v-model with an argument</h2>
+<div class="compare"><figure class="before"><figcaption>Vue 2</figcaption><pre><code class="language-html">&lt;text-document :title.sync=&quot;doc.title&quot; /&gt;</code></pre></figure><figure class="after"><figcaption>Vue 3</figcaption><pre><code class="language-html">&lt;text-document v-model:title=&quot;doc.title&quot; /&gt;</code></pre></figure></div>
+<p>The child keeps emitting <code>update:title</code>, so this rewrite is safe, and <code>npx vueleap --fix</code> applies it for you. Components can now accept several <code>v-model</code> bindings, one per argument.</p>
+<h2>How vueleap detects it</h2><p>vueleap reports components that declare a <code>value</code> prop and emit <code>input</code>, components with a <code>model</code> option (rule <code>component-v-model</code>, compat flag <code>COMPONENT_V_MODEL</code>) and every <code>.sync</code> modifier (rule <code>sync-modifier</code>, compat flag <code>COMPILER_V_BIND_SYNC</code>), which it can rewrite automatically.</p><p>Run it on your project:</p><pre><code class="language-bash">npx vueleap</code></pre>
+<h2>More guides</h2>
+<div class="cards"><a class="card" href="migrate-vue-2-to-vue-3.html"><strong>How to migrate Vue 2 to Vue 3</strong><span>A step by step plan using the migration build and vueleap.</span></a><a class="card" href="vue-3-breaking-changes-checklist.html"><strong>Vue 3 breaking changes checklist</strong><span>All 41 checks, with severity, compat flag and fix.</span></a><a class="card" href="vue-compat-build-flags.html"><strong>@vue/compat build flags explained</strong><span>How configureCompat works and which flags you need.</span></a><a class="card" href="vue-filters-removed-vue-3.html"><strong>Vue filters removed in Vue 3</strong><span>Replace filters with methods, computed properties or globals.</span></a><a class="card" href="vue-event-bus-vue-3.html"><strong>Event bus in Vue 3</strong><span>Replace $on, $off and $once with mitt, props or a store.</span></a><a class="card" href="vue-2-end-of-life.html"><strong>Vue 2 end of life</strong><span>What the end of support means and how to plan the upgrade.</span></a></div>
+</div>
+</main>
+<footer class="site"><div class="container">
+<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.</div>
+<nav aria-label="Guides"><a href="migrate-vue-2-to-vue-3.html">How to migrate Vue 2 to Vue 3</a><a href="vue-3-breaking-changes-checklist.html">Vue 3 breaking changes checklist</a><a href="vue-compat-build-flags.html">@vue/compat build flags explained</a><a href="vue-filters-removed-vue-3.html">Vue filters removed in Vue 3</a><a href="vue-event-bus-vue-3.html">Event bus in Vue 3</a><a href="v-model-changes-vue-3.html">v-model changes in Vue 3</a><a href="vue-2-end-of-life.html">Vue 2 end of life</a><a href="https://www.npmjs.com/package/vueleap">npm</a></nav>
+</div></footer>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme'),o=['auto','light','dark'];
+function a(t){if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);b.textContent='Theme: '+t}
+var s='auto';try{s=localStorage.getItem('vueleap-theme')||'auto'}catch(e){}a(s);
+b.addEventListener('click',function(){var c=r.getAttribute('data-theme')||'auto',n=o[(o.indexOf(c)+1)%3];a(n);try{localStorage.setItem('vueleap-theme',n)}catch(e){}});
+var c=document.getElementById('copy');if(c)c.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText('npx vueleap').then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)})});})();
+</script>
+</body>
+</html>

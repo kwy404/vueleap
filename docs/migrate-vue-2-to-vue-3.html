@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to migrate Vue 2 to Vue 3: a step by step guide</title>
+<meta name="description" content="Migrate a Vue 2 app to Vue 3 step by step: inventory breaking changes, run the @vue/compat migration build with the right flags, apply safe fixes and upgrade the ecosystem.">
+<link rel="canonical" href="https://kwy404.github.io/vueleap/migrate-vue-2-to-vue-3.html">
+<meta name="theme-color" content="#42b883">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="vueleap">
+<meta property="og:title" content="How to migrate Vue 2 to Vue 3: a step by step guide">
+<meta property="og:description" content="Migrate a Vue 2 app to Vue 3 step by step: inventory breaking changes, run the @vue/compat migration build with the right flags, apply safe fixes and upgrade the ecosystem.">
+<meta property="og:url" content="https://kwy404.github.io/vueleap/migrate-vue-2-to-vue-3.html">
+<meta property="og:image" content="https://kwy404.github.io/vueleap/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="vueleap, the Vue 2 to Vue 3 migration tool, with Hop the frog leaping from lily pad 2 to lily pad 3">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How to migrate Vue 2 to Vue 3: a step by step guide">
+<meta name="twitter:description" content="Migrate a Vue 2 app to Vue 3 step by step: inventory breaking changes, run the @vue/compat migration build with the right flags, apply safe fixes and upgrade the ecosystem.">
+<meta name="twitter:image" content="https://kwy404.github.io/vueleap/og.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"How to migrate Vue 2 to Vue 3: a step by step guide","description":"Migrate a Vue 2 app to Vue 3 step by step: inventory breaking changes, run the @vue/compat migration build with the right flags, apply safe fixes and upgrade the ecosystem.","url":"https://kwy404.github.io/vueleap/migrate-vue-2-to-vue-3.html","mainEntityOfPage":"https://kwy404.github.io/vueleap/migrate-vue-2-to-vue-3.html","image":"https://kwy404.github.io/vueleap/og.png","datePublished":"2026-10-12","dateModified":"2026-10-12","inLanguage":"en","author":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"publisher":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"about":["Vue.js","Vue 3 migration"]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long does a Vue 2 to Vue 3 migration take?","acceptedAnswer":{"@type":"Answer","text":"It depends on how much the code relies on removed APIs and on Vue 2 only libraries. Run `npx vueleap` to get an inventory and an effort score: each finding adds a weight, and fixable findings count for a tenth. UI libraries such as Vuetify 2 or BootstrapVue usually dominate the total."}},{"@type":"Question","name":"Can I migrate incrementally?","acceptedAnswer":{"@type":"Answer","text":"Yes. The @vue/compat migration build runs Vue 2 style code on Vue 3, and each compat flag can be turned off once the matching code is fixed. vueleap prints the minimal set of flags your project needs."}},{"@type":"Question","name":"Do I need to rewrite my components with the Composition API?","acceptedAnswer":{"@type":"Answer","text":"No. The Options API is fully supported in Vue 3. Migrate first, then adopt the Composition API where it helps."}}]}]}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site"><div class="container">
+<a class="logo" href="./"><img src="favicon.svg" alt="" width="34" height="34"><b>vue<span>leap</span></b></a>
+<nav class="main" aria-label="Main"><a href="migrate-vue-2-to-vue-3.html" aria-current="page">Migration guide</a><a href="vue-3-breaking-changes-checklist.html">Breaking changes</a><a href="vue-compat-build-flags.html">Compat flags</a><a href="report-example.html">Sample report</a><a href="https://github.com/kwy404/vueleap">GitHub</a></nav>
+<button class="theme-toggle" type="button" id="theme" aria-label="Toggle color theme">Theme</button>
+</div></header>
+<main id="content">
+<div class="container narrow">
+<h1>How to migrate Vue 2 to Vue 3</h1>
+<p class="lede">The safest way to upgrade is to measure first, run Vue 3 in compatibility mode, then remove Vue 2 behavior one piece at a time. This guide follows the official <a href="https://v3-migration.vuejs.org/migration-build">migration build</a> process and uses vueleap to know exactly what to change.</p>
+<p class="meta">Updated 2026-10-12</p>
+<h2>1. Take an inventory of breaking changes</h2>
+<p>Run vueleap at the root of the project. It reads <code>.vue</code>, JavaScript, TypeScript and style files plus <code>package.json</code>, skips <code>node_modules</code>, <code>dist</code> and anything in <code>.gitignore</code>, and groups findings by rule.</p>
+<pre><code class="language-bash">npx vueleap
+npx vueleap --html report.html   # shareable report</code></pre>
+<p>Every finding has a severity: <strong>error</strong> breaks at compile time or runtime, <strong>warning</strong> changes behavior, <strong>info</strong> deserves a review. The summary ends with an effort score to compare projects or track progress.</p>
+<h2>2. Upgrade the build tooling</h2>
+<p>Vue 3 single file components are compiled by <code>@vue/compiler-sfc</code>, which ships with <code>vue</code>. Remove <code>vue-template-compiler</code>, use <code>vue-loader</code> 17 with webpack or Vue CLI 5, or <code>@vitejs/plugin-vue</code> with Vite. vueleap reports these under <code>vue2-tooling</code>.</p>
+<h2>3. Install Vue 3 with the migration build</h2>
+<pre><code class="language-bash">npm install vue@^3.5 @vue/compat@^3.5
+npm uninstall vue-template-compiler</code></pre>
+<p>Alias <code>vue</code> to <code>@vue/compat</code> and enable compat mode in the template compiler. vueleap prints this configuration with only the flags your project needs, running everything else in Vue 3 mode (<code>MODE: 3</code>):</p>
+<pre><code class="language-js">// vite.config.js
+import vue from '@vitejs/plugin-vue'
+
+export default {
+  resolve: { alias: { vue: '@vue/compat' } },
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          compatConfig: { MODE: 3, COMPILER_FILTERS: true, COMPILER_V_BIND_SYNC: true },
+        },
+      },
+    }),
+  ],
+}</code></pre>
+<pre><code class="language-js">// main.js
+import { configureCompat } from 'vue'
+
+configureCompat({
+  MODE: 3,
+  GLOBAL_MOUNT: true,
+  INSTANCE_EVENT_EMITTER: true,
+  FILTERS: true,
+})</code></pre>
+<p>Read <a href="vue-compat-build-flags.html">@vue/compat build flags explained</a> for what each flag does.</p>
+<h2>4. Apply the safe automatic fixes</h2>
+<p>Some changes are pure renames. vueleap rewrites them while preserving formatting, and shows a diff first:</p>
+<pre><code class="language-bash">npx vueleap --fix           # preview
+npx vueleap --fix --write   # apply</code></pre>
+<p>That covers <code>beforeDestroy</code> and <code>destroyed</code>, custom directive hooks, <code>$scopedSlots</code>, transition class names, keyCode modifiers with a single key name, <code>.sync</code> to <code>v-model:prop</code>, <code>@hook:</code> events and <code>Vue.config.productionTip</code>.</p>
+<h2>5. Fix the rest, rule by rule</h2>
+<ol class="steps">
+<li>Replace <code>new Vue()</code> with <code>createApp()</code> and move <code>Vue.use</code>, <code>Vue.component</code>, <code>Vue.directive</code> and <code>Vue.prototype</code> to the app instance.</li>
+<li>Remove <a href="vue-filters-removed-vue-3.html">filters</a> and replace the <a href="vue-event-bus-vue-3.html">event bus</a>.</li>
+<li>Update components used with <a href="v-model-changes-vue-3.html">v-model</a> to <code>modelValue</code> and <code>update:modelValue</code>.</li>
+<li>Rewrite render functions to import <code>h</code> from <code>vue</code>, and replace <code>$listeners</code> and <code>$children</code>.</li>
+</ol>
+<p>The <a href="vue-3-breaking-changes-checklist.html">breaking changes checklist</a> links every rule to the official guide.</p>
+<h2>6. Upgrade the ecosystem</h2>
+<p>Move to vue-router 4 and to Vuex 4 or Pinia. Replace Vue 2 only UI libraries: BootstrapVue with bootstrap-vue-next, Vuetify 2 with Vuetify 3, Element UI with Element Plus. vueleap lists them from <code>package.json</code> with the suggested successor.</p>
+<h2>7. Turn compat off and keep it off</h2>
+<p>Remove each compat flag once vueleap no longer reports the matching rule. When the list is empty, drop the alias and <code>@vue/compat</code>. Then keep the codebase clean in CI:</p>
+<pre><code class="language-bash">npx vueleap --fail-on error</code></pre>
+<h2>Frequently asked questions</h2>
+<details class="faq"><summary>How long does a Vue 2 to Vue 3 migration take?</summary><p>It depends on how much the code relies on removed APIs and on Vue 2 only libraries. Run <code>npx vueleap</code> to get an inventory and an effort score: each finding adds a weight, and fixable findings count for a tenth. UI libraries such as Vuetify 2 or BootstrapVue usually dominate the total.</p></details>
+<details class="faq"><summary>Can I migrate incrementally?</summary><p>Yes. The @vue/compat migration build runs Vue 2 style code on Vue 3, and each compat flag can be turned off once the matching code is fixed. vueleap prints the minimal set of flags your project needs.</p></details>
+<details class="faq"><summary>Do I need to rewrite my components with the Composition API?</summary><p>No. The Options API is fully supported in Vue 3. Migrate first, then adopt the Composition API where it helps.</p></details>
+<h2>More guides</h2>
+<div class="cards"><a class="card" href="vue-3-breaking-changes-checklist.html"><strong>Vue 3 breaking changes checklist</strong><span>All 41 checks, with severity, compat flag and fix.</span></a><a class="card" href="vue-compat-build-flags.html"><strong>@vue/compat build flags explained</strong><span>How configureCompat works and which flags you need.</span></a><a class="card" href="vue-filters-removed-vue-3.html"><strong>Vue filters removed in Vue 3</strong><span>Replace filters with methods, computed properties or globals.</span></a><a class="card" href="vue-event-bus-vue-3.html"><strong>Event bus in Vue 3</strong><span>Replace $on, $off and $once with mitt, props or a store.</span></a><a class="card" href="v-model-changes-vue-3.html"><strong>v-model changes in Vue 3</strong><span>modelValue, update:modelValue, v-model arguments and .sync.</span></a><a class="card" href="vue-2-end-of-life.html"><strong>Vue 2 end of life</strong><span>What the end of support means and how to plan the upgrade.</span></a></div>
+</div>
+</main>
+<footer class="site"><div class="container">
+<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.</div>
+<nav aria-label="Guides"><a href="migrate-vue-2-to-vue-3.html">How to migrate Vue 2 to Vue 3</a><a href="vue-3-breaking-changes-checklist.html">Vue 3 breaking changes checklist</a><a href="vue-compat-build-flags.html">@vue/compat build flags explained</a><a href="vue-filters-removed-vue-3.html">Vue filters removed in Vue 3</a><a href="vue-event-bus-vue-3.html">Event bus in Vue 3</a><a href="v-model-changes-vue-3.html">v-model changes in Vue 3</a><a href="vue-2-end-of-life.html">Vue 2 end of life</a><a href="https://www.npmjs.com/package/vueleap">npm</a></nav>
+</div></footer>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme'),o=['auto','light','dark'];
+function a(t){if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);b.textContent='Theme: '+t}
+var s='auto';try{s=localStorage.getItem('vueleap-theme')||'auto'}catch(e){}a(s);
+b.addEventListener('click',function(){var c=r.getAttribute('data-theme')||'auto',n=o[(o.indexOf(c)+1)%3];a(n);try{localStorage.setItem('vueleap-theme',n)}catch(e){}});
+var c=document.getElementById('copy');if(c)c.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText('npx vueleap').then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)})});})();
+</script>
+</body>
+</html>

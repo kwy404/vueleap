@@ -45,7 +45,6 @@ exports[`cli > prints the pretty report 1`] = `
 
 error  global-api  Global Vue API moved to the app instance (8)
        https://v3-migration.vuejs.org/breaking-changes/global-api
-       compat: GLOBAL_OBSERVABLE, GLOBAL_PRIVATE_UTIL
   src/legacy/inline.js:3:1  Vue.component is removed from the global API: use app.component().
   src/main.js:16:1          Vue.use is removed from the global API: use app.use().
   src/main.js:17:1          Vue.mixin is removed from the global API: use app.mixin().
@@ -67,7 +66,7 @@ error  filters  Filters are removed (6)
 
 error  set-delete  $set, $delete, Vue.set and Vue.delete are removed (5)
        https://v3-migration.vuejs.org/breaking-changes/#removed-apis
-       compat: GLOBAL_SET, GLOBAL_DELETE, INSTANCE_SET, INSTANCE_DELETE
+       compat: GLOBAL_DELETE, GLOBAL_SET, INSTANCE_DELETE, INSTANCE_SET
   src/components/ProductList.vue:55:12  $set is removed: assign the property directly, Vue 3 tracks it.
   src/store/index.js:10:7               Vue.set is removed: assign the property directly, Vue 3 tracks it.
   src/store/index.js:13:7               Vue.delete is removed: use the delete operator, Vue 3 tracks it.
@@ -207,7 +206,7 @@ warn   transition-classes  Transition classes renamed (4)  [4 fixable]
 
 warn   hook-events  hook: lifecycle events are renamed (2)  [1 fixable]
        https://v3-migration.vuejs.org/breaking-changes/vnode-lifecycle-events
-       compat: INSTANCE_EVENT_HOOKS
+       compat: INSTANCE_EVENT_EMITTER, INSTANCE_EVENT_HOOKS
   src/components/Modal.vue:2:23         @hook:mounted is now @vue:mounted.
   src/components/ProductList.vue:48:10  $once('hook:beforeDestroy') no longer works: use the lifecycle hook directly, or @vue:beforeUnmount on the parent template.
 
@@ -240,7 +239,7 @@ warn   config-ignored-elements  Vue.config.ignoredElements is replaced by isCust
 
 warn   global-config  Vue.config moved to app.config (1)
        https://v3-migration.vuejs.org/breaking-changes/global-api#a-new-global-api-createapp
-       compat: CONFIG_SILENT, CONFIG_DEVTOOLS, CONFIG_OPTION_MERGE_STRATS
+       compat: CONFIG_DEVTOOLS
   src/main.js:12:1  Vue.config.devtools is not available in Vue 3: use app.config on the instance returned by createApp().
 
 warn   is-on-element  is on native elements needs the vue: prefix (1)

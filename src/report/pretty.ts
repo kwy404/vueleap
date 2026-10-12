@@ -1,6 +1,5 @@
 import pc from 'picocolors'
 import { compatSnippet } from '../compat.js'
-import { RULES_BY_ID } from '../rules.js'
 import type { AnalysisResult, Finding, Severity } from '../types.js'
 
 export interface PrettyOptions {
@@ -45,11 +44,10 @@ export function formatPretty(result: AnalysisResult, options: PrettyOptions = {}
 
   for (const entry of summary.byRule) {
     const findings = byRule.get(entry.ruleId) ?? []
-    const rule = RULES_BY_ID.get(entry.ruleId)
     const fixable = entry.fixable > 0 ? c.green(`  [${entry.fixable} fixable]`) : ''
     out.push(`${label(c, entry.severity)}  ${c.bold(entry.ruleId)}  ${entry.title} ${c.dim(`(${entry.count})`)}${fixable}`)
     out.push(`       ${c.dim(entry.docs)}`)
-    const flags = rule?.compatFlags ?? []
+    const flags = [...new Set(findings.flatMap((f) => f.compatFlags))].sort()
     if (flags.length > 0) out.push(`       ${c.dim(`compat: ${flags.join(', ')}`)}`)
     const shown = findings.slice(0, max)
     const width = Math.min(48, Math.max(...shown.map((f) => `${f.file}:${f.line}:${f.column}`.length)))

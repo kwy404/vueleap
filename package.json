@@ -70,7 +70,9 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:update": "vitest run -u",
-    "prepublishOnly": "npm run build && npm test"
+    "prepublishOnly": "npm run build && npm test",
+    "docs:build": "npm run build && node scripts/render-assets.mjs && node scripts/build-docs.mjs",
+    "docs:png": "bash scripts/render-png.sh"
   },
   "dependencies": {
     "@babel/parser": "^7.29.9",

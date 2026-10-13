@@ -41,7 +41,7 @@ export default {
 `;
 
 exports[`cli > prints the pretty report 1`] = `
-"vueleap v0.1.0  Vue 2 to Vue 3 migration report
+"vueleap v0.1.1  Vue 2 to Vue 3 migration report
 
 error  global-api  Global Vue API moved to the app instance (8)
        https://v3-migration.vuejs.org/breaking-changes/global-api

@@ -7,6 +7,12 @@ import { FAVICON_SVG, MASCOT_SVG } from '../src/report/mascot.js'
 import { majorOf } from '../src/scan/package.js'
 import { APP } from './helpers.js'
 
+// En and em dashes, miscellaneous symbols and dingbats, and emoji blocks.
+const BANNED_CHARACTERS = new RegExp(
+  `[${String.fromCharCode(0x2013, 0x2014)}${String.fromCharCode(0x2600)}-${String.fromCharCode(0x27bf)}]|[${String.fromCodePoint(0x1f000)}-${String.fromCodePoint(0x1faff)}]`,
+  'u',
+)
+
 describe('findFilters', () => {
   it('finds filters like the Vue 2 compiler', () => {
     expect(findFilters('price | currency')).toEqual([{ name: 'currency', offset: 6 }])
@@ -92,7 +98,7 @@ describe('html report', async () => {
   })
 
   it('uses no emoji or dash punctuation', () => {
-    expect(html).not.toMatch(/[–—☀-➿]|[\u{1F000}-\u{1FAFF}]/u)
+    expect(html).not.toMatch(BANNED_CHARACTERS)
   })
 
   it('embeds the mascot that ships in assets', async () => {

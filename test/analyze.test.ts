@@ -6,6 +6,7 @@ import { analyze, RULES } from '../src/index.js'
 import { APP, compact, EDGE } from './helpers.js'
 
 const require = createRequire(import.meta.url)
+const BANNED_DASHES = new RegExp(`[${String.fromCharCode(0x2013, 0x2014)}]`)
 
 async function enumMembers(file: string, name: string): Promise<Set<string>> {
   const source = await fs.readFile(file, 'utf8')
@@ -154,6 +155,6 @@ describe('rules', () => {
   it('never use dash punctuation in user facing text', async () => {
     const [app, edge] = await Promise.all([analyze(APP), analyze(EDGE)])
     const text = JSON.stringify([RULES, app.findings, edge.findings])
-    expect(text).not.toMatch(/[–—]/)
+    expect(text).not.toMatch(BANNED_DASHES)
   })
 })

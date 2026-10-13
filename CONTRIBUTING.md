@@ -77,6 +77,27 @@ derived from that call.
    diff. A test fails if a rule is never triggered by the fixtures.
 6. **Document it** in the rule table of `README.md`.
 
+## Documentation site and images
+
+The site in `docs/` is static HTML served by GitHub Pages. It is generated, so
+edit the scripts, not the HTML:
+
+| Script | What it does |
+| --- | --- |
+| `scripts/render-assets.mjs` | Terminal SVG, animated demo, banners, card sources and `docs/report-example.html`, all from real CLI output |
+| `scripts/build-docs.mjs` | Every docs page, rule tables, sitemap and robots.txt |
+| `scripts/highlight-docs.mjs` | VS Code style syntax highlighting with Shiki (idempotent) |
+| `scripts/render-png.sh` | `og.png`, `social-preview.png` and `report.png` with Edge or Chrome headless |
+
+```bash
+npm run docs:build   # build, assets, pages, highlighting
+npm run docs:png     # PNG screenshots
+```
+
+Interactive parts of the site (theme toggle, copy buttons, package manager
+tabs, checklist filters) use [Voodoo.js](https://github.com/kwy404/Voodoo.js)
+directives. Article text and code stay in the static HTML.
+
 ## Writing style
 
 - English for code, docs and messages (the Portuguese README is the only

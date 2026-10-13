@@ -22,6 +22,8 @@
 <meta name="twitter:image" content="https://kwy404.github.io/vueleap/og.png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
+<script>try{var t=localStorage.getItem('voodoo:theme');try{t=JSON.parse(t)}catch(e){}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script src="https://cdn.jsdelivr.net/npm/voodoojs@0.13.0/dist/voodoo.full.min.js" defer></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"How to migrate Vue 2 to Vue 3: a step by step guide","description":"Migrate a Vue 2 app to Vue 3 step by step: inventory breaking changes, run the @vue/compat migration build with the right flags, apply safe fixes and upgrade the ecosystem.","url":"https://kwy404.github.io/vueleap/migrate-vue-2-to-vue-3.html","mainEntityOfPage":"https://kwy404.github.io/vueleap/migrate-vue-2-to-vue-3.html","image":"https://kwy404.github.io/vueleap/og.png","datePublished":"2026-10-12","dateModified":"2026-10-12","inLanguage":"en","author":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"publisher":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"about":["Vue.js","Vue 3 migration"]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long does a Vue 2 to Vue 3 migration take?","acceptedAnswer":{"@type":"Answer","text":"It depends on how much the code relies on removed APIs and on Vue 2 only libraries. Run `npx vueleap` to get an inventory and an effort score: each finding adds a weight, and fixable findings count for a tenth. UI libraries such as Vuetify 2 or BootstrapVue usually dominate the total."}},{"@type":"Question","name":"Can I migrate incrementally?","acceptedAnswer":{"@type":"Answer","text":"Yes. The @vue/compat migration build runs Vue 2 style code on Vue 3, and each compat flag can be turned off once the matching code is fixed. vueleap prints the minimal set of flags your project needs."}},{"@type":"Question","name":"Do I need to rewrite my components with the Composition API?","acceptedAnswer":{"@type":"Answer","text":"No. The Options API is fully supported in Vue 3. Migrate first, then adopt the Composition API where it helps."}}]}]}</script>
 </head>
 <body>
@@ -29,7 +31,7 @@
 <header class="site"><div class="container">
 <a class="logo" href="./"><img src="favicon.svg" alt="" width="34" height="34"><b>vue<span>leap</span></b></a>
 <nav class="main" aria-label="Main"><a href="migrate-vue-2-to-vue-3.html" aria-current="page">Migration guide</a><a href="vue-3-breaking-changes-checklist.html">Breaking changes</a><a href="vue-compat-build-flags.html">Compat flags</a><a href="report-example.html">Sample report</a><a href="https://github.com/kwy404/vueleap">GitHub</a></nav>
-<button class="theme-toggle" type="button" id="theme" aria-label="Toggle color theme">Theme</button>
+<button class="theme-toggle" type="button" v-theme-toggle><span v-text="$theme.resolved === 'dark' ? 'Light theme' : 'Dark theme'">Theme</span></button>
 </div></header>
 <main id="content">
 <div class="container narrow">
@@ -38,44 +40,60 @@
 <p class="meta">Updated 2026-10-12</p>
 <h2>1. Take an inventory of breaking changes</h2>
 <p>Run vueleap at the root of the project. It reads <code>.vue</code>, JavaScript, TypeScript and style files plus <code>package.json</code>, skips <code>node_modules</code>, <code>dist</code> and anything in <code>.gitignore</code>, and groups findings by rule.</p>
-<pre><code class="language-bash">npx vueleap
-npx vueleap --html report.html   # shareable report</code></pre>
+<div class="pm" v-data="{ pm: $storage.get('vueleap-pm') || 'npm' }"><div class="pm-tabs" role="tablist" aria-label="Package manager" v-cloak><button type="button" role="tab" id="guide-tab-npm" aria-controls="guide-npm" class="pm-tab" @click="pm = 'npm'; $storage.set('vueleap-pm', 'npm')" :aria-selected="pm === 'npm' ? 'true' : 'false'" :class="{ active: pm === 'npm' }">npm</button><button type="button" role="tab" id="guide-tab-pnpm" aria-controls="guide-pnpm" class="pm-tab" @click="pm = 'pnpm'; $storage.set('vueleap-pm', 'pnpm')" :aria-selected="pm === 'pnpm' ? 'true' : 'false'" :class="{ active: pm === 'pnpm' }">pnpm</button><button type="button" role="tab" id="guide-tab-yarn" aria-controls="guide-yarn" class="pm-tab" @click="pm = 'yarn'; $storage.set('vueleap-pm', 'yarn')" :aria-selected="pm === 'yarn' ? 'true' : 'false'" :class="{ active: pm === 'yarn' }">yarn</button><button type="button" role="tab" id="guide-tab-bun" aria-controls="guide-bun" class="pm-tab" @click="pm = 'bun'; $storage.set('vueleap-pm', 'bun')" :aria-selected="pm === 'bun' ? 'true' : 'false'" :class="{ active: pm === 'bun' }">bun</button></div><div role="tabpanel" id="guide-npm" aria-labelledby="guide-tab-npm" :hidden="pm !== 'npm'"><div class="code-window" data-lang="bash"><div class="code-bar"><span class="code-dots" aria-hidden="true"></span><span class="code-file">Terminal (npm)</span><button type="button" class="code-copy" v-cloak v-copy-from="#code-1" v-copy-label="Copied" aria-label="Copy Terminal (npm) code">Copy</button></div><pre id="code-1" class="shiki shiki-themes light-plus dark-plus" style="--shiki-light:#000000;--shiki-dark:#D4D4D4;--shiki-light-bg:#FFFFFF;--shiki-dark-bg:#1E1E1E" tabindex="0"><code><span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955"># run it once, nothing to install</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">npx</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955"># or add it to the project</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">npm</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> install</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> --save-dev</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span></span></code></pre></div></div><div role="tabpanel" id="guide-pnpm" aria-labelledby="guide-tab-pnpm" :hidden="pm !== 'pnpm'" hidden><div class="code-window" data-lang="bash"><div class="code-bar"><span class="code-dots" aria-hidden="true"></span><span class="code-file">Terminal (pnpm)</span><button type="button" class="code-copy" v-cloak v-copy-from="#code-2" v-copy-label="Copied" aria-label="Copy Terminal (pnpm) code">Copy</button></div><pre id="code-2" class="shiki shiki-themes light-plus dark-plus" style="--shiki-light:#000000;--shiki-dark:#D4D4D4;--shiki-light-bg:#FFFFFF;--shiki-dark-bg:#1E1E1E" tabindex="0"><code><span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955"># run it once, nothing to install</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">pnpm</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> dlx</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955"># or add it to the project</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">pnpm</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> add</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> --save-dev</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span></span></code></pre></div></div><div role="tabpanel" id="guide-yarn" aria-labelledby="guide-tab-yarn" :hidden="pm !== 'yarn'" hidden><div class="code-window" data-lang="bash"><div class="code-bar"><span class="code-dots" aria-hidden="true"></span><span class="code-file">Terminal (yarn)</span><button type="button" class="code-copy" v-cloak v-copy-from="#code-3" v-copy-label="Copied" aria-label="Copy Terminal (yarn) code">Copy</button></div><pre id="code-3" class="shiki shiki-themes light-plus dark-plus" style="--shiki-light:#000000;--shiki-dark:#D4D4D4;--shiki-light-bg:#FFFFFF;--shiki-dark-bg:#1E1E1E" tabindex="0"><code><span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955"># run it once, nothing to install</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">yarn</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> dlx</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955"># or add it to the project</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">yarn</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> add</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> --dev</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span></span></code></pre></div></div><div role="tabpanel" id="guide-bun" aria-labelledby="guide-tab-bun" :hidden="pm !== 'bun'" hidden><div class="code-window" data-lang="bash"><div class="code-bar"><span class="code-dots" aria-hidden="true"></span><span class="code-file">Terminal (bun)</span><button type="button" class="code-copy" v-cloak v-copy-from="#code-4" v-copy-label="Copied" aria-label="Copy Terminal (bun) code">Copy</button></div><pre id="code-4" class="shiki shiki-themes light-plus dark-plus" style="--shiki-light:#000000;--shiki-dark:#D4D4D4;--shiki-light-bg:#FFFFFF;--shiki-dark-bg:#1E1E1E" tabindex="0"><code><span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955"># run it once, nothing to install</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">bunx</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955"># or add it to the project</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">bun</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> add</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> --dev</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span></span></code></pre></div></div></div>
+<p>Add <code>--html report.html</code> to also get a shareable report.</p>
 <p>Every finding has a severity: <strong>error</strong> breaks at compile time or runtime, <strong>warning</strong> changes behavior, <strong>info</strong> deserves a review. The summary ends with an effort score to compare projects or track progress.</p>
 <h2>2. Upgrade the build tooling</h2>
 <p>Vue 3 single file components are compiled by <code>@vue/compiler-sfc</code>, which ships with <code>vue</code>. Remove <code>vue-template-compiler</code>, use <code>vue-loader</code> 17 with webpack or Vue CLI 5, or <code>@vitejs/plugin-vue</code> with Vite. vueleap reports these under <code>vue2-tooling</code>.</p>
 <h2>3. Install Vue 3 with the migration build</h2>
-<pre><code class="language-bash">npm install vue@^3.5 @vue/compat@^3.5
-npm uninstall vue-template-compiler</code></pre>
+<div class="code-window" data-lang="bash"><div class="code-bar"><span class="code-dots" aria-hidden="true"></span><span class="code-file">Terminal</span><button type="button" class="code-copy" v-cloak v-copy-from="#code-5" v-copy-label="Copied" aria-label="Copy Terminal code">Copy</button></div><pre id="code-5" class="shiki shiki-themes light-plus dark-plus" style="--shiki-light:#000000;--shiki-dark:#D4D4D4;--shiki-light-bg:#FFFFFF;--shiki-dark-bg:#1E1E1E" tabindex="0"><code><span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">npm</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> install</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vue@^3.5</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> @vue/compat@^3.5</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">npm</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> uninstall</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vue-template-compiler</span></span></code></pre></div>
 <p>Alias <code>vue</code> to <code>@vue/compat</code> and enable compat mode in the template compiler. vueleap prints this configuration with only the flags your project needs, running everything else in Vue 3 mode (<code>MODE: 3</code>):</p>
-<pre><code class="language-js">// vite.config.js
-import vue from '@vitejs/plugin-vue'
-
-export default {
-  resolve: { alias: { vue: '@vue/compat' } },
-  plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          compatConfig: { MODE: 3, COMPILER_FILTERS: true, COMPILER_V_BIND_SYNC: true },
-        },
-      },
-    }),
-  ],
-}</code></pre>
-<pre><code class="language-js">// main.js
-import { configureCompat } from 'vue'
-
-configureCompat({
-  MODE: 3,
-  GLOBAL_MOUNT: true,
-  INSTANCE_EVENT_EMITTER: true,
-  FILTERS: true,
-})</code></pre>
+<div class="code-window" data-lang="js"><div class="code-bar"><span class="code-dots" aria-hidden="true"></span><span class="code-file">vite.config.js</span><button type="button" class="code-copy" v-cloak v-copy-from="#code-6" v-copy-label="Copied" aria-label="Copy vite.config.js code">Copy</button></div><pre id="code-6" class="shiki shiki-themes light-plus dark-plus" style="--shiki-light:#000000;--shiki-dark:#D4D4D4;--shiki-light-bg:#FFFFFF;--shiki-dark-bg:#1E1E1E" tabindex="0"><code><span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955">// vite.config.js</span></span>
+<span class="line"><span style="--shiki-light:#AF00DB;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE"> vue</span><span style="--shiki-light:#AF00DB;--shiki-dark:#C586C0"> from</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> '@vitejs/plugin-vue'</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#AF00DB;--shiki-dark:#C586C0">export</span><span style="--shiki-light:#AF00DB;--shiki-dark:#C586C0"> default</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> {</span></span>
+<span class="line"><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">  resolve:</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> { </span><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">alias:</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> { </span><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">vue:</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> '@vue/compat'</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> } },</span></span>
+<span class="line"><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">  plugins:</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> [</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">    vue</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">({</span></span>
+<span class="line"><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">      template:</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> {</span></span>
+<span class="line"><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">        compilerOptions:</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> {</span></span>
+<span class="line"><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">          compatConfig:</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> { </span><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">MODE:</span><span style="--shiki-light:#098658;--shiki-dark:#B5CEA8"> 3</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">COMPILER_FILTERS:</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> true</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">COMPILER_V_BIND_SYNC:</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> true</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> },</span></span>
+<span class="line"><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">        },</span></span>
+<span class="line"><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">      },</span></span>
+<span class="line"><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">    }),</span></span>
+<span class="line"><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">  ],</span></span>
+<span class="line"><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">}</span></span></code></pre></div>
+<div class="code-window" data-lang="js"><div class="code-bar"><span class="code-dots" aria-hidden="true"></span><span class="code-file">main.js</span><button type="button" class="code-copy" v-cloak v-copy-from="#code-7" v-copy-label="Copied" aria-label="Copy main.js code">Copy</button></div><pre id="code-7" class="shiki shiki-themes light-plus dark-plus" style="--shiki-light:#000000;--shiki-dark:#D4D4D4;--shiki-light-bg:#FFFFFF;--shiki-dark-bg:#1E1E1E" tabindex="0"><code><span class="line"><span style="--shiki-light:#008000;--shiki-dark:#6A9955">// main.js</span></span>
+<span class="line"><span style="--shiki-light:#AF00DB;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> { </span><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">configureCompat</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4"> } </span><span style="--shiki-light:#AF00DB;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> 'vue'</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">configureCompat</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">({</span></span>
+<span class="line"><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">  MODE:</span><span style="--shiki-light:#098658;--shiki-dark:#B5CEA8"> 3</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">,</span></span>
+<span class="line"><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">  GLOBAL_MOUNT:</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> true</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">,</span></span>
+<span class="line"><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">  INSTANCE_EVENT_EMITTER:</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> true</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">,</span></span>
+<span class="line"><span style="--shiki-light:#001080;--shiki-dark:#9CDCFE">  FILTERS:</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> true</span><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">,</span></span>
+<span class="line"><span style="--shiki-light:#000000;--shiki-dark:#D4D4D4">})</span></span></code></pre></div>
 <p>Read <a href="vue-compat-build-flags.html">@vue/compat build flags explained</a> for what each flag does.</p>
 <h2>4. Apply the safe automatic fixes</h2>
 <p>Some changes are pure renames. vueleap rewrites them while preserving formatting, and shows a diff first:</p>
-<pre><code class="language-bash">npx vueleap --fix           # preview
-npx vueleap --fix --write   # apply</code></pre>
+<div class="code-window" data-lang="bash"><div class="code-bar"><span class="code-dots" aria-hidden="true"></span><span class="code-file">Terminal</span><button type="button" class="code-copy" v-cloak v-copy-from="#code-8" v-copy-label="Copied" aria-label="Copy Terminal code">Copy</button></div><pre id="code-8" class="shiki shiki-themes light-plus dark-plus" style="--shiki-light:#000000;--shiki-dark:#D4D4D4;--shiki-light-bg:#FFFFFF;--shiki-dark-bg:#1E1E1E" tabindex="0"><code><span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">npx</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> --fix</span><span style="--shiki-light:#008000;--shiki-dark:#6A9955">           # preview</span></span>
+<span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">npx</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> --fix</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> --write</span><span style="--shiki-light:#008000;--shiki-dark:#6A9955">   # apply</span></span></code></pre></div>
 <p>That covers <code>beforeDestroy</code> and <code>destroyed</code>, custom directive hooks, <code>$scopedSlots</code>, transition class names, keyCode modifiers with a single key name, <code>.sync</code> to <code>v-model:prop</code>, <code>@hook:</code> events and <code>Vue.config.productionTip</code>.</p>
 <h2>5. Fix the rest, rule by rule</h2>
 <ol class="steps">
@@ -89,7 +107,7 @@ npx vueleap --fix --write   # apply</code></pre>
 <p>Move to vue-router 4 and to Vuex 4 or Pinia. Replace Vue 2 only UI libraries: BootstrapVue with bootstrap-vue-next, Vuetify 2 with Vuetify 3, Element UI with Element Plus. vueleap lists them from <code>package.json</code> with the suggested successor.</p>
 <h2>7. Turn compat off and keep it off</h2>
 <p>Remove each compat flag once vueleap no longer reports the matching rule. When the list is empty, drop the alias and <code>@vue/compat</code>. Then keep the codebase clean in CI:</p>
-<pre><code class="language-bash">npx vueleap --fail-on error</code></pre>
+<div class="code-window" data-lang="bash"><div class="code-bar"><span class="code-dots" aria-hidden="true"></span><span class="code-file">Terminal</span><button type="button" class="code-copy" v-cloak v-copy-from="#code-9" v-copy-label="Copied" aria-label="Copy Terminal code">Copy</button></div><pre id="code-9" class="shiki shiki-themes light-plus dark-plus" style="--shiki-light:#000000;--shiki-dark:#D4D4D4;--shiki-light-bg:#FFFFFF;--shiki-dark-bg:#1E1E1E" tabindex="0"><code><span class="line"><span style="--shiki-light:#795E26;--shiki-dark:#DCDCAA">npx</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> vueleap</span><span style="--shiki-light:#0000FF;--shiki-dark:#569CD6"> --fail-on</span><span style="--shiki-light:#A31515;--shiki-dark:#CE9178"> error</span></span></code></pre></div>
 <h2>Frequently asked questions</h2>
 <details class="faq"><summary>How long does a Vue 2 to Vue 3 migration take?</summary><p>It depends on how much the code relies on removed APIs and on Vue 2 only libraries. Run <code>npx vueleap</code> to get an inventory and an effort score: each finding adds a weight, and fixable findings count for a tenth. UI libraries such as Vuetify 2 or BootstrapVue usually dominate the total.</p></details>
 <details class="faq"><summary>Can I migrate incrementally?</summary><p>Yes. The @vue/compat migration build runs Vue 2 style code on Vue 3, and each compat flag can be turned off once the matching code is fixed. vueleap prints the minimal set of flags your project needs.</p></details>
@@ -99,15 +117,8 @@ npx vueleap --fix --write   # apply</code></pre>
 </div>
 </main>
 <footer class="site"><div class="container">
-<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.</div>
+<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.<br>Interactive parts built with <a href="https://github.com/kwy404/Voodoo.js">Voodoo.js</a>.</div>
 <nav aria-label="Guides"><a href="migrate-vue-2-to-vue-3.html">How to migrate Vue 2 to Vue 3</a><a href="vue-3-breaking-changes-checklist.html">Vue 3 breaking changes checklist</a><a href="vue-compat-build-flags.html">@vue/compat build flags explained</a><a href="vue-filters-removed-vue-3.html">Vue filters removed in Vue 3</a><a href="vue-event-bus-vue-3.html">Event bus in Vue 3</a><a href="v-model-changes-vue-3.html">v-model changes in Vue 3</a><a href="vue-2-end-of-life.html">Vue 2 end of life</a><a href="https://www.npmjs.com/package/vueleap">npm</a></nav>
 </div></footer>
-<script>
-(function(){var r=document.documentElement,b=document.getElementById('theme'),o=['auto','light','dark'];
-function a(t){if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);b.textContent='Theme: '+t}
-var s='auto';try{s=localStorage.getItem('vueleap-theme')||'auto'}catch(e){}a(s);
-b.addEventListener('click',function(){var c=r.getAttribute('data-theme')||'auto',n=o[(o.indexOf(c)+1)%3];a(n);try{localStorage.setItem('vueleap-theme',n)}catch(e){}});
-var c=document.getElementById('copy');if(c)c.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText('npx vueleap').then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)})});})();
-</script>
 </body>
 </html>

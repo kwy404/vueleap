@@ -22,6 +22,8 @@
 <meta name="twitter:image" content="https://kwy404.github.io/vueleap/og.png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
+<script>try{var t=localStorage.getItem('voodoo:theme');try{t=JSON.parse(t)}catch(e){}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script src="https://cdn.jsdelivr.net/npm/voodoojs@0.13.0/dist/voodoo.full.min.js" defer></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Page not found"}</script>
 </head>
 <body>
@@ -29,21 +31,14 @@
 <header class="site"><div class="container">
 <a class="logo" href="./"><img src="favicon.svg" alt="" width="34" height="34"><b>vue<span>leap</span></b></a>
 <nav class="main" aria-label="Main"><a href="migrate-vue-2-to-vue-3.html">Migration guide</a><a href="vue-3-breaking-changes-checklist.html">Breaking changes</a><a href="vue-compat-build-flags.html">Compat flags</a><a href="report-example.html">Sample report</a><a href="https://github.com/kwy404/vueleap">GitHub</a></nav>
-<button class="theme-toggle" type="button" id="theme" aria-label="Toggle color theme">Theme</button>
+<button class="theme-toggle" type="button" v-theme-toggle><span v-text="$theme.resolved === 'dark' ? 'Light theme' : 'Dark theme'">Theme</span></button>
 </div></header>
 <main id="content">
 <div class="container narrow" style="text-align:center"><img src="mascot.svg" width="240" height="180" alt="Hop the frog missed the lily pad" style="margin-top:48px"><h1>This page leapt away</h1><p class="lede">The page you are looking for does not exist. Try one of the guides below.</p><div class="cards"><a class="card" href="migrate-vue-2-to-vue-3.html"><strong>How to migrate Vue 2 to Vue 3</strong><span>A step by step plan using the migration build and vueleap.</span></a><a class="card" href="vue-3-breaking-changes-checklist.html"><strong>Vue 3 breaking changes checklist</strong><span>All 41 checks, with severity, compat flag and fix.</span></a><a class="card" href="vue-compat-build-flags.html"><strong>@vue/compat build flags explained</strong><span>How configureCompat works and which flags you need.</span></a><a class="card" href="vue-filters-removed-vue-3.html"><strong>Vue filters removed in Vue 3</strong><span>Replace filters with methods, computed properties or globals.</span></a><a class="card" href="vue-event-bus-vue-3.html"><strong>Event bus in Vue 3</strong><span>Replace $on, $off and $once with mitt, props or a store.</span></a><a class="card" href="v-model-changes-vue-3.html"><strong>v-model changes in Vue 3</strong><span>modelValue, update:modelValue, v-model arguments and .sync.</span></a><a class="card" href="vue-2-end-of-life.html"><strong>Vue 2 end of life</strong><span>What the end of support means and how to plan the upgrade.</span></a></div><p><a href="./">Back to the home page</a></p></div>
 </main>
 <footer class="site"><div class="container">
-<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.</div>
+<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.<br>Interactive parts built with <a href="https://github.com/kwy404/Voodoo.js">Voodoo.js</a>.</div>
 <nav aria-label="Guides"><a href="migrate-vue-2-to-vue-3.html">How to migrate Vue 2 to Vue 3</a><a href="vue-3-breaking-changes-checklist.html">Vue 3 breaking changes checklist</a><a href="vue-compat-build-flags.html">@vue/compat build flags explained</a><a href="vue-filters-removed-vue-3.html">Vue filters removed in Vue 3</a><a href="vue-event-bus-vue-3.html">Event bus in Vue 3</a><a href="v-model-changes-vue-3.html">v-model changes in Vue 3</a><a href="vue-2-end-of-life.html">Vue 2 end of life</a><a href="https://www.npmjs.com/package/vueleap">npm</a></nav>
 </div></footer>
-<script>
-(function(){var r=document.documentElement,b=document.getElementById('theme'),o=['auto','light','dark'];
-function a(t){if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);b.textContent='Theme: '+t}
-var s='auto';try{s=localStorage.getItem('vueleap-theme')||'auto'}catch(e){}a(s);
-b.addEventListener('click',function(){var c=r.getAttribute('data-theme')||'auto',n=o[(o.indexOf(c)+1)%3];a(n);try{localStorage.setItem('vueleap-theme',n)}catch(e){}});
-var c=document.getElementById('copy');if(c)c.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText('npx vueleap').then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)})});})();
-</script>
 </body>
 </html>

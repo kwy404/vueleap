@@ -71,8 +71,9 @@
     "test": "vitest run",
     "test:update": "vitest run -u",
     "prepublishOnly": "npm run build && npm test",
-    "docs:build": "npm run build && node scripts/render-assets.mjs && node scripts/build-docs.mjs",
-    "docs:png": "bash scripts/render-png.sh"
+    "docs:build": "npm run build && node scripts/render-assets.mjs && node scripts/build-docs.mjs && node scripts/highlight-docs.mjs",
+    "docs:png": "bash scripts/render-png.sh",
+    "docs:highlight": "node scripts/highlight-docs.mjs"
   },
   "dependencies": {
     "@babel/parser": "^7.29.9",
@@ -88,6 +89,7 @@
     "@types/node": "^18.19.130",
     "@vue/compat": "^3.5.43",
     "eslint": "^9.39.5",
+    "shiki": "~3.23.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "~8.55.0",
     "vite": "^6.4.4",

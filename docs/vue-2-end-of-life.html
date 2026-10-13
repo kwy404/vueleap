@@ -22,6 +22,8 @@
 <meta name="twitter:image" content="https://kwy404.github.io/vueleap/og.png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
+<script>try{var t=localStorage.getItem('voodoo:theme');try{t=JSON.parse(t)}catch(e){}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script src="https://cdn.jsdelivr.net/npm/voodoojs@0.13.0/dist/voodoo.full.min.js" defer></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Vue 2 end of life: what it means and how to migrate to Vue 3","description":"Vue 2 reached end of life on December 31, 2023. What end of support means for your app, the risks of staying, and a practical plan to migrate to Vue 3.","url":"https://kwy404.github.io/vueleap/vue-2-end-of-life.html","mainEntityOfPage":"https://kwy404.github.io/vueleap/vue-2-end-of-life.html","image":"https://kwy404.github.io/vueleap/og.png","datePublished":"2026-10-12","dateModified":"2026-10-12","inLanguage":"en","author":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"publisher":{"@type":"Person","name":"Alexandre Kohler","url":"https://github.com/kwy404"},"about":["Vue.js","Vue 3 migration"]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When did Vue 2 reach end of life?","acceptedAnswer":{"@type":"Answer","text":"Vue 2 reached end of life on December 31, 2023. Vue 2.7 was its last minor release."}},{"@type":"Question","name":"Is Vue 2 still supported?","acceptedAnswer":{"@type":"Answer","text":"Not by the Vue core team: Vue 2 no longer receives updates, including security and browser compatibility fixes. The official end of life page points teams that need continued fixes to a commercial third party offer (HeroDevs Never-Ending Support), but the ecosystem has moved to Vue 3."}},{"@type":"Question","name":"Will my Vue 2 app stop working?","acceptedAnswer":{"@type":"Answer","text":"No. Published versions keep working. The risk grows over time: unpatched vulnerabilities, browsers and build tools moving on, and libraries dropping Vue 2 support."}},{"@type":"Question","name":"What is the fastest way to know how much work the upgrade is?","acceptedAnswer":{"@type":"Answer","text":"Run `npx vueleap` in the project. It lists every Vue 3 breaking change with file and line, the Vue 2 only dependencies, and an effort score."}}]}]}</script>
 </head>
 <body>
@@ -29,7 +31,7 @@
 <header class="site"><div class="container">
 <a class="logo" href="./"><img src="favicon.svg" alt="" width="34" height="34"><b>vue<span>leap</span></b></a>
 <nav class="main" aria-label="Main"><a href="migrate-vue-2-to-vue-3.html">Migration guide</a><a href="vue-3-breaking-changes-checklist.html">Breaking changes</a><a href="vue-compat-build-flags.html">Compat flags</a><a href="report-example.html">Sample report</a><a href="https://github.com/kwy404/vueleap">GitHub</a></nav>
-<button class="theme-toggle" type="button" id="theme" aria-label="Toggle color theme">Theme</button>
+<button class="theme-toggle" type="button" v-theme-toggle><span v-text="$theme.resolved === 'dark' ? 'Light theme' : 'Dark theme'">Theme</span></button>
 </div></header>
 <main id="content">
 <div class="container narrow">
@@ -62,15 +64,8 @@
 </div>
 </main>
 <footer class="site"><div class="container">
-<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.</div>
+<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.<br>Interactive parts built with <a href="https://github.com/kwy404/Voodoo.js">Voodoo.js</a>.</div>
 <nav aria-label="Guides"><a href="migrate-vue-2-to-vue-3.html">How to migrate Vue 2 to Vue 3</a><a href="vue-3-breaking-changes-checklist.html">Vue 3 breaking changes checklist</a><a href="vue-compat-build-flags.html">@vue/compat build flags explained</a><a href="vue-filters-removed-vue-3.html">Vue filters removed in Vue 3</a><a href="vue-event-bus-vue-3.html">Event bus in Vue 3</a><a href="v-model-changes-vue-3.html">v-model changes in Vue 3</a><a href="vue-2-end-of-life.html">Vue 2 end of life</a><a href="https://www.npmjs.com/package/vueleap">npm</a></nav>
 </div></footer>
-<script>
-(function(){var r=document.documentElement,b=document.getElementById('theme'),o=['auto','light','dark'];
-function a(t){if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);b.textContent='Theme: '+t}
-var s='auto';try{s=localStorage.getItem('vueleap-theme')||'auto'}catch(e){}a(s);
-b.addEventListener('click',function(){var c=r.getAttribute('data-theme')||'auto',n=o[(o.indexOf(c)+1)%3];a(n);try{localStorage.setItem('vueleap-theme',n)}catch(e){}});
-var c=document.getElementById('copy');if(c)c.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText('npx vueleap').then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)})});})();
-</script>
 </body>
 </html>

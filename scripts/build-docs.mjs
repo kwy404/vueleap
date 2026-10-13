@@ -18,9 +18,37 @@ const demoSvg = await fs.readFile(path.join(root, 'assets/demo.svg'), 'utf8')
 const [, demoW, demoH] = /width="(\d+)" height="(\d+)"/.exec(demoSvg)
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const md = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>')
-const code = (lang, source) => `<pre><code class="language-${lang}">${esc(source.trim())}</code></pre>`
-const compare = (lang, before, after, beforeLabel = 'Vue 2', afterLabel = 'Vue 3') =>
-  `<div class="compare"><figure class="before"><figcaption>${beforeLabel}</figcaption>${code(lang, before)}</figure><figure class="after"><figcaption>${afterLabel}</figcaption>${code(lang, after)}</figure></div>`
+// Code blocks are written as plain escaped HTML here, then highlighted at build
+// time by scripts/highlight-docs.mjs (Shiki, VS Code light and dark themes).
+const DEFAULT_TITLES = { bash: 'Terminal', js: 'main.js', ts: 'main.ts', vue: 'Component.vue', html: 'index.html', yaml: 'ci.yml' }
+const code = (lang, source, title = DEFAULT_TITLES[lang] ?? lang) =>
+  `<pre data-title="${esc(title)}"><code class="language-${lang}">${esc(source.trim())}</code></pre>`
+const compare = (lang, before, after, beforeLabel = 'Vue 2', afterLabel = 'Vue 3', titles = []) =>
+  `<div class="compare"><figure class="before"><figcaption>${beforeLabel}</figcaption>${code(lang, before, titles[0])}</figure><figure class="after"><figcaption>${afterLabel}</figcaption>${code(lang, after, titles[1])}</figure></div>`
+
+const PACKAGE_MANAGERS = [
+  ['npm', 'npx vueleap', 'npm install --save-dev vueleap'],
+  ['pnpm', 'pnpm dlx vueleap', 'pnpm add --save-dev vueleap'],
+  ['yarn', 'yarn dlx vueleap', 'yarn add --dev vueleap'],
+  ['bun', 'bunx vueleap', 'bun add --dev vueleap'],
+]
+
+/** npm, pnpm, yarn and bun tabs. Every command stays in the static HTML. */
+function installTabs(id) {
+  const tabs = PACKAGE_MANAGERS.map(
+    ([pm]) =>
+      `<button type="button" role="tab" id="${id}-tab-${pm}" aria-controls="${id}-${pm}" class="pm-tab" @click="pm = '${pm}'; $storage.set('vueleap-pm', '${pm}')" :aria-selected="pm === '${pm}' ? 'true' : 'false'" :class="{ active: pm === '${pm}' }">${pm}</button>`,
+  ).join('')
+  const panels = PACKAGE_MANAGERS.map(
+    ([pm, run, add], index) =>
+      `<div role="tabpanel" id="${id}-${pm}" aria-labelledby="${id}-tab-${pm}" :hidden="pm !== '${pm}'"${index === 0 ? '' : ' hidden'}>${code('bash', `# run it once, nothing to install
+${run}
+
+# or add it to the project
+${add}`, `Terminal (${pm})`)}</div>`,
+  ).join('')
+  return `<div class="pm" v-data="{ pm: $storage.get('vueleap-pm') || 'npm' }"><div class="pm-tabs" role="tablist" aria-label="Package manager" v-cloak>${tabs}</div>${panels}</div>`
+}
 
 const NAV = [
   ['migrate-vue-2-to-vue-3.html', 'Migration guide'],
@@ -100,6 +128,8 @@ function layout({ slug, title, description, body, ld }) {
 <meta name="twitter:image" content="${SITE}og.png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
+<script>try{var t=localStorage.getItem('voodoo:theme');try{t=JSON.parse(t)}catch(e){}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script src="https://cdn.jsdelivr.net/npm/voodoojs@0.13.0/dist/voodoo.full.min.js" defer></script>
 ${jsonLd({ '@context': 'https://schema.org', ...(Array.isArray(ld) ? { '@graph': ld } : ld) })}
 </head>
 <body>
@@ -107,22 +137,15 @@ ${jsonLd({ '@context': 'https://schema.org', ...(Array.isArray(ld) ? { '@graph':
 <header class="site"><div class="container">
 <a class="logo" href="./"><img src="favicon.svg" alt="" width="34" height="34"><b>vue<span>leap</span></b></a>
 <nav class="main" aria-label="Main">${nav}<a href="${REPO}">GitHub</a></nav>
-<button class="theme-toggle" type="button" id="theme" aria-label="Toggle color theme">Theme</button>
+<button class="theme-toggle" type="button" v-theme-toggle><span v-text="$theme.resolved === 'dark' ? 'Light theme' : 'Dark theme'">Theme</span></button>
 </div></header>
 <main id="content">
 ${body}
 </main>
 <footer class="site"><div class="container">
-<div>vueleap ${VERSION}, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.</div>
+<div>vueleap ${VERSION}, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.<br>Interactive parts built with <a href="https://github.com/kwy404/Voodoo.js">Voodoo.js</a>.</div>
 <nav aria-label="Guides">${footerLinks}<a href="https://www.npmjs.com/package/vueleap">npm</a></nav>
 </div></footer>
-<script>
-(function(){var r=document.documentElement,b=document.getElementById('theme'),o=['auto','light','dark'];
-function a(t){if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);b.textContent='Theme: '+t}
-var s='auto';try{s=localStorage.getItem('vueleap-theme')||'auto'}catch(e){}a(s);
-b.addEventListener('click',function(){var c=r.getAttribute('data-theme')||'auto',n=o[(o.indexOf(c)+1)%3];a(n);try{localStorage.setItem('vueleap-theme',n)}catch(e){}});
-var c=document.getElementById('copy');if(c)c.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText('npx vueleap').then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)})});})();
-</script>
 </body>
 </html>
 `
@@ -133,11 +156,22 @@ const guideCards = (exclude) =>
     .map(([href, label, text]) => `<a class="card" href="${href}"><strong>${label}</strong><span>${text}</span></a>`)
     .join('')}</div>`
 
+/** Lowercase text used by the checklist search, safe inside a quoted expression. */
+const searchText = (r) =>
+  [r.id, r.title, r.description, ...r.compatFlags]
+    .join(' ')
+    .toLowerCase()
+    .replace(/[^a-z0-9@:._/ -]+/g, ' ')
+    .replace(/ +/g, ' ')
+    .trim()
+const MATCH = (prefix) =>
+  `(sev === 'all' || ${prefix}s === sev) && (!fixOnly || ${prefix}f) && ${prefix}t.includes(q.trim().toLowerCase())`
+
 function ruleRows(rules) {
   return rules
     .map(
       (r) =>
-        `<tr><td><code>${r.id}</code></td><td><span class="sev ${r.severity}">${r.severity}</span></td><td><strong>${esc(r.title)}</strong><br>${md(r.description)}</td><td>${
+        `<tr v-show="(sev === 'all' || sev === '${r.severity}') && (!fixOnly || ${r.fixable}) && '${searchText(r)}'.includes(q.trim().toLowerCase())"><td><code>${r.id}</code></td><td><span class="sev ${r.severity}">${r.severity}</span></td><td><strong>${esc(r.title)}</strong><br>${md(r.description)}</td><td>${
           r.compatFlags.length ? r.compatFlags.map((f) => `<code>${f}</code>`).join(' ') : 'none'
         }</td><td>${r.fixable ? 'Yes' : 'No'}</td><td><a href="${r.docs}">Guide</a></td></tr>`,
     )
@@ -193,7 +227,8 @@ const pages = []
 <img class="mascot" src="mascot.svg" width="260" height="195" alt="Hop, the vueleap frog mascot, leaping from a lily pad marked 2 to a lily pad marked 3">
 <h1>Migrate Vue 2 to Vue 3<br><span>with one command</span></h1>
 <p class="lead">vueleap scans your Vue 2 project and tells you exactly what breaks in Vue 3, file by file and line by line, with the official migration guide link, the <code>@vue/compat</code> flags you need and safe automatic fixes.</p>
-<div class="cta"><span class="command">npx vueleap <button type="button" id="copy">Copy</button></span><a class="button" href="${REPO}">View on GitHub</a></div>
+<div class="hero-install">${installTabs('hero')}</div>
+<div class="cta"><a class="button primary" href="migrate-vue-2-to-vue-3.html">Read the migration guide</a><a class="button" href="${REPO}">View on GitHub</a></div>
 </section>
 <div class="container">
 <div class="features">${features
@@ -235,14 +270,15 @@ ${faqHtml(faqs)}
 <p class="meta">Updated ${DATE}</p>
 <h2>1. Take an inventory of breaking changes</h2>
 <p>Run vueleap at the root of the project. It reads <code>.vue</code>, JavaScript, TypeScript and style files plus <code>package.json</code>, skips <code>node_modules</code>, <code>dist</code> and anything in <code>.gitignore</code>, and groups findings by rule.</p>
-${code('bash', 'npx vueleap\nnpx vueleap --html report.html   # shareable report')}
+${installTabs('guide')}
+<p>Add <code>--html report.html</code> to also get a shareable report.</p>
 <p>Every finding has a severity: <strong>error</strong> breaks at compile time or runtime, <strong>warning</strong> changes behavior, <strong>info</strong> deserves a review. The summary ends with an effort score to compare projects or track progress.</p>
 <h2>2. Upgrade the build tooling</h2>
 <p>Vue 3 single file components are compiled by <code>@vue/compiler-sfc</code>, which ships with <code>vue</code>. Remove <code>vue-template-compiler</code>, use <code>vue-loader</code> 17 with webpack or Vue CLI 5, or <code>@vitejs/plugin-vue</code> with Vite. vueleap reports these under <code>vue2-tooling</code>.</p>
 <h2>3. Install Vue 3 with the migration build</h2>
 ${code('bash', 'npm install vue@^3.5 @vue/compat@^3.5\nnpm uninstall vue-template-compiler')}
 <p>Alias <code>vue</code> to <code>@vue/compat</code> and enable compat mode in the template compiler. vueleap prints this configuration with only the flags your project needs, running everything else in Vue 3 mode (<code>MODE: 3</code>):</p>
-${code('js', "// vite.config.js\nimport vue from '@vitejs/plugin-vue'\n\nexport default {\n  resolve: { alias: { vue: '@vue/compat' } },\n  plugins: [\n    vue({\n      template: {\n        compilerOptions: {\n          compatConfig: { MODE: 3, COMPILER_FILTERS: true, COMPILER_V_BIND_SYNC: true },\n        },\n      },\n    }),\n  ],\n}")}
+${code('js', "// vite.config.js\nimport vue from '@vitejs/plugin-vue'\n\nexport default {\n  resolve: { alias: { vue: '@vue/compat' } },\n  plugins: [\n    vue({\n      template: {\n        compilerOptions: {\n          compatConfig: { MODE: 3, COMPILER_FILTERS: true, COMPILER_V_BIND_SYNC: true },\n        },\n      },\n    }),\n  ],\n}", 'vite.config.js')}
 ${code('js', "// main.js\nimport { configureCompat } from 'vue'\n\nconfigureCompat({\n  MODE: 3,\n  GLOBAL_MOUNT: true,\n  INSTANCE_EVENT_EMITTER: true,\n  FILTERS: true,\n})")}
 <p>Read <a href="vue-compat-build-flags.html">@vue/compat build flags explained</a> for what each flag does.</p>
 <h2>4. Apply the safe automatic fixes</h2>
@@ -293,9 +329,21 @@ ${guideCards(slug)}
 <p class="meta">${RULES.length} checks, ${RULES.filter((r) => r.fixable).length} with safe automatic fixes. Generated from vueleap ${VERSION}.</p>
 <div class="callout"><p>Instead of reading the list, run <code>npx vueleap</code> in your project to see which of these apply, with file and line numbers.</p></div>
 </div>
+<div class="checklist" v-data="{ q: '', sev: 'all', fixOnly: false, rules: [${RULES.map((r) => `{ c: '${r.category}', s: '${r.severity}', f: ${r.fixable}, t: '${searchText(r)}' }`).join(', ')}] }">
+<div class="filters" role="search" v-cloak>
+<input type="search" v-model="q" placeholder="Search rules, APIs or compat flags" aria-label="Search the checklist">
+<select v-model="sev" aria-label="Filter by severity"><option value="all">All severities</option><option value="error">Errors</option><option value="warning">Warnings</option><option value="info">Info</option></select>
+<label class="check"><input type="checkbox" v-model="fixOnly"> Auto fixable only</label>
+<span class="count" aria-live="polite" v-text="rules.filter(r => ${MATCH('r.')}).length + ' of ${RULES.length} checks shown'">${RULES.length} checks</span>
+</div>
 ${groups
-  .map(([category, label]) => `<h2>${label}</h2>${ruleTable(RULES.filter((r) => r.category === category))}`)
+  .map(
+    ([category, label]) =>
+      `<section v-show="rules.some(r => r.c === '${category}' && ${MATCH('r.')})"><h2>${label}</h2>${ruleTable(RULES.filter((r) => r.category === category))}</section>`,
+  )
   .join('\n')}
+<p class="empty" v-cloak v-show="!rules.some(r => ${MATCH('r.')})">No check matches this search.</p>
+</div>
 <div class="narrow">
 <h2>How vueleap detects them</h2>
 <p>Templates are parsed with <code>@vue/compiler-dom</code> (the Vue 3 compiler parser, which still understands Vue 2 syntax), scripts with <code>@babel/parser</code> (JavaScript, TypeScript, JSX and decorators), styles with a comment aware scanner, and dependencies from <code>package.json</code>. Component options are only checked on objects that really look like components, so a <code>{ destroyed: true }</code> flag is not mistaken for a lifecycle hook.</p>
@@ -344,6 +392,7 @@ ${compare(
   "// Recommended with vueleap: Vue 3 by default\nimport { configureCompat } from 'vue'\n\n// opt in only to what the code still needs\nconfigureCompat({\n  MODE: 3,\n  FILTERS: true,\n  INSTANCE_EVENT_EMITTER: true,\n})",
   'Opt out (MODE 2)',
   'Opt in (MODE 3)',
+  ['main.js', 'main.js'],
 )}
 <h2>Get the minimal flags for your project</h2>
 <p>vueleap maps every finding to its flag and prints the smallest configuration that keeps your app running, split into runtime and compiler parts:</p>
@@ -376,7 +425,7 @@ ${guideCards(slug)}
 <p class="meta">Official guide: <a href="https://v3-migration.vuejs.org/breaking-changes/filters">Filters, Vue 3 migration guide</a></p>
 <h2>Local filters</h2>
 ${compare(
-  'html',
+  'vue',
   `<template>
   <p>{{ price | currency('EUR') }}</p>
 </template>
@@ -409,6 +458,7 @@ export default {
   },
 }
 </script>`,
+  'Vue 2', 'Vue 3', ['PriceTag.vue', 'PriceTag.vue'],
 )}
 <p>Note the argument order: the filtered value becomes the first argument. When the result only depends on reactive state, a computed property is even better.</p>
 <h2>Global filters</h2>
@@ -424,6 +474,7 @@ app.config.globalProperties.$filters = {
 }
 
 // template: {{ $filters.currency(total) }}`,
+  'Vue 2', 'Vue 3', ['main.js', 'main.js'],
 )}
 <h2>Chained filters</h2>
 <p><code>{{ name | trim | capitalize }}</code> becomes <code>{{ capitalize(trim(name)) }}</code>. Read it inside out.</p>
@@ -480,6 +531,7 @@ beforeUnmount() {
 
 // AddButton.vue
 emitter.emit('cart:add', product)`,
+  'Vue 2', 'Vue 3', ['event-bus.js', 'event-bus.js'],
 )}
 <h2>Better long term options</h2>
 <ul>
@@ -530,6 +582,7 @@ ${compare(
     },
   },
 }`,
+  'Vue 2', 'Vue 3', ['BaseInput.js', 'BaseInput.js'],
 )}
 <p>Parents keep writing <code>&lt;base-input v-model="email" /&gt;</code>.</p>
 <h2>Components using the model option</h2>
@@ -545,9 +598,21 @@ ${compare(
   emits: ['update:checked'],
 }
 // parent: <my-checkbox v-model:checked="agreed" />`,
+  'Vue 2', 'Vue 3', ['MyCheckbox.js', 'MyCheckbox.js'],
 )}
 <h2>.sync becomes v-model with an argument</h2>
-${compare('html', `<text-document :title.sync="doc.title" />`, `<text-document v-model:title="doc.title" />`)}
+${compare(
+  'vue',
+  `<template>
+  <text-document :title.sync="doc.title" />
+</template>`,
+  `<template>
+  <text-document v-model:title="doc.title" />
+</template>`,
+  'Vue 2',
+  'Vue 3',
+  ['Editor.vue', 'Editor.vue'],
+)}
 <p>The child keeps emitting <code>update:title</code>, so this rewrite is safe, and <code>npx vueleap --fix</code> applies it for you. Components can now accept several <code>v-model</code> bindings, one per argument.</p>
 ${howTo(`<p>vueleap reports components that declare a <code>value</code> prop and emit <code>input</code>, components with a <code>model</code> option (rule <code>component-v-model</code>, compat flag <code>COMPONENT_V_MODEL</code>) and every <code>.sync</code> modifier (rule <code>sync-modifier</code>, compat flag <code>COMPILER_V_BIND_SYNC</code>), which it can rewrite automatically.</p>`)}
 <h2>More guides</h2>

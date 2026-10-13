@@ -72,7 +72,8 @@
     "prepublishOnly": "npm run build && npm test",
     "docs:build": "npm run build && node scripts/render-assets.mjs && node scripts/build-docs.mjs && node scripts/highlight-docs.mjs",
     "docs:png": "bash scripts/render-png.sh",
-    "docs:highlight": "node scripts/highlight-docs.mjs"
+    "docs:highlight": "node scripts/highlight-docs.mjs",
+    "docs:check": "node scripts/check-docs.mjs"
   },
   "dependencies": {
     "@babel/parser": "^7.29.9",

@@ -58,6 +58,8 @@ npx vueleap
 - [FAQ](#faq)
 - [How does vueleap compare to other Vue 3 migration tools?](#how-does-vueleap-compare-to-other-vue-3-migration-tools)
 - [Documentation and guides](#documentation-and-guides)
+- [More from kwy404](#more-from-kwy404)
+- [Author](#author)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -342,11 +344,16 @@ They work well together: run vueleap to see the size of the migration and to con
 
 ## More from kwy404
 
+- [Monsoon](https://kwy404.github.io/monsoon/): utility-first CSS with no build step, the framework the docs site is built with.
+- [Voodoo.js](https://kwy404.github.io/Voodoo.js/): the HTML first framework behind the interactive parts of the docs site.
+- [breakhound](https://kwy404.github.io/breakhound/): find bugs in any JavaScript library automatically, no tests needed.
 - [graphemely](https://kwy404.github.io/graphemely/): truncate, slice and count strings with emoji safely.
-- [edgegoat](https://kwy404.github.io/edgegoat/): edge case test inputs for time zones, DST, unicode and numbers.
 - [numberparrot](https://kwy404.github.io/numberparrot/): parse localized number and currency strings back into numbers.
-- [breakhound](https://github.com/kwy404/breakhound): find bugs in any JavaScript library automatically, no tests needed.
-- [Voodoo.js](https://github.com/kwy404/Voodoo.js): the HTML first framework behind the interactive parts of the docs site.
+- [edgegoat](https://kwy404.github.io/edgegoat/): edge case test inputs for time zones, DST, unicode and numbers.
+
+## Author
+
+Made by [Alexandre Kohler](https://github.com/kwy404) ([GitHub](https://github.com/kwy404), [LinkedIn](https://www.linkedin.com/in/alexandre-silva-173687256/)). The [documentation site](https://kwy404.github.io/vueleap/) is built with [Monsoon](https://kwy404.github.io/monsoon/), and its interactive parts with [Voodoo.js](https://kwy404.github.io/Voodoo.js/).
 
 ## Contributing
 

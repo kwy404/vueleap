@@ -21,7 +21,7 @@ import { copyButton, fileIcon } from './frame-parts.mjs'
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const docs = path.join(root, 'docs')
-const LANGS = ['bash', 'js', 'ts', 'vue', 'html', 'yaml', 'json', 'css']
+const LANGS = ['bash', 'js', 'ts', 'vue', 'html', 'yaml', 'json', 'css', 'diff']
 const BLOCK = /<pre data-title="([^"]*)"(?: data-frame="(\w+)")?(?: data-id="([\w-]+)")?><code class="language-([\w-]+)">([\s\S]*?)<\/code><\/pre>/g
 
 const unescapeHtml = (s) =>
@@ -37,16 +37,27 @@ const promptLines = (source) => ({
   },
 })
 
+/** Marks added, removed and hunk lines of a unified diff for a background tint. */
+const diffLines = (source) => ({
+  line(node, line) {
+    const text = source.split('\n')[line - 1] ?? ''
+    if (text.startsWith('@@')) this.addClassToHast(node, 'hunk')
+    else if (text.startsWith('+') && !text.startsWith('+++')) this.addClassToHast(node, 'add')
+    else if (text.startsWith('-') && !text.startsWith('---')) this.addClassToHast(node, 'del')
+  },
+})
+
 function highlight(source, lang, id, label) {
   const shell = lang === 'bash'
+  const terminal = shell || lang === 'diff'
   return highlighter
     .codeToHtml(source, {
       lang: LANGS.includes(lang) ? lang : 'text',
       themes: { light: 'light-plus', dark: 'dark-plus' },
       defaultColor: false,
-      transformers: shell ? [promptLines(source)] : [],
+      transformers: shell ? [promptLines(source)] : lang === 'diff' ? [diffLines(source)] : [],
     })
-    .replace('<pre class="shiki', `<pre id="${id}" class="${shell ? 'term ' : 'numbered '}shiki`)
+    .replace('<pre class="shiki', `<pre id="${id}" class="${terminal ? 'term ' : 'numbered '}${lang === 'diff' ? 'diff-code ' : ''}shiki`)
     .replace(' tabindex="0"', ` tabindex="0" aria-label="${label}"`)
 }
 
@@ -61,18 +72,18 @@ for (const name of (await fs.readdir(docs)).sort()) {
     const id = givenId || `code-${counter}`
     const pre = highlight(unescapeHtml(body), lang, id, `${title} code`)
     if (frame === 'bare') return pre
-    if (lang === 'bash') {
+    if (lang === 'bash' || lang === 'diff') {
       return (
-        `<figure class="window terminal" data-lang="bash">` +
+        `<figure class="window terminal" data-lang="${lang}">` +
         `<div class="window-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>` +
         `<span class="panel-tab">Terminal</span><span class="panel-shell">${fileIcon('terminal')}<span>${title === 'Terminal' ? 'bash' : title}</span></span>` +
-        `${copyButton(id, 'command')}</div>${pre}</figure>`
+        `${copyButton(id, lang === 'diff' ? 'diff' : 'command')}</div>${pre}</figure>`
       )
     }
     return (
-      `<figure class="window editor" data-lang="${lang}">` +
+      `<figure class="window" data-lang="${lang}">` +
       `<div class="window-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>` +
-      `<span class="tab active">${fileIcon(title)}<span>${title}</span></span>${copyButton(id, `${title} code`)}</div>` +
+      `<span class="win-tab is-static">${fileIcon(title)}<span>${title}</span></span>${copyButton(id, `${title} code`)}</div>` +
       `${pre}</figure>`
     )
   })

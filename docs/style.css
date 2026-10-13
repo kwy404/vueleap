@@ -289,7 +289,7 @@ nav.main a[aria-current="page"] { color: var(--accent); background: var(--accent
 
 @media (max-width: 960px) {
   .hero { padding: 36px 0 60px; }
-  .hero-grid { grid-template-columns: 1fr; gap: 20px; }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .hero-visual { order: -1; }
   .hero-visual .mascot { max-width: 260px; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 44px; }
@@ -605,3 +605,6 @@ footer.site a:hover { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+.hero-copy { min-width: 0; }
+.install .tab { flex: none; }
+@media (max-width: 640px) { .install .tab .file-icon { display: none; } }

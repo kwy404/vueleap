@@ -9,6 +9,8 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/vueleap"><img src="https://img.shields.io/npm/v/vueleap?color=42b883&label=npm" width="80" alt="vueleap npm version"></a>
+  <a href="https://www.npmjs.com/package/vueleap"><img src="https://img.shields.io/npm/dm/vueleap" width="110" alt="vueleap npm downloads per month"></a>
+  <a href="https://www.npmjs.com/package/vueleap"><img src="https://img.shields.io/npm/dt/vueleap" width="100" alt="vueleap total npm downloads"></a>
   <a href="https://github.com/kwy404/vueleap/actions/workflows/ci.yml"><img src="https://github.com/kwy404/vueleap/actions/workflows/ci.yml/badge.svg" width="96" alt="CI status of the Vue 3 migration tool"></a>
   <a href="https://github.com/kwy404/vueleap/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/vueleap?color=42b883" width="78" alt="MIT license"></a>
   <a href="https://github.com/kwy404/vueleap/blob/main/package.json"><img src="https://img.shields.io/node/v/vueleap?color=42b883" width="90" alt="Node.js 18 or newer"></a>
@@ -337,6 +339,14 @@ They work well together: run vueleap to see the size of the migration and to con
 - [v-model changes in Vue 3](https://kwy404.github.io/vueleap/v-model-changes-vue-3.html)
 - [Vue 2 end of life](https://kwy404.github.io/vueleap/vue-2-end-of-life.html)
 - [Sample HTML report](https://kwy404.github.io/vueleap/report-example.html)
+
+## More from kwy404
+
+- [graphemely](https://kwy404.github.io/graphemely/): truncate, slice and count strings with emoji safely.
+- [edgegoat](https://kwy404.github.io/edgegoat/): edge case test inputs for time zones, DST, unicode and numbers.
+- [numberparrot](https://kwy404.github.io/numberparrot/): parse localized number and currency strings back into numbers.
+- [breakhound](https://github.com/kwy404/breakhound): find bugs in any JavaScript library automatically, no tests needed.
+- [Voodoo.js](https://github.com/kwy404/Voodoo.js): the HTML first framework behind the interactive parts of the docs site.
 
 ## Contributing
 

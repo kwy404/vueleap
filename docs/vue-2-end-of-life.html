@@ -28,24 +28,35 @@
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
-<header class="site"><div class="container">
-<a class="logo" href="./"><img src="favicon.svg" alt="" width="34" height="34"><b>vue<span>leap</span></b></a>
-<nav class="main" aria-label="Main"><a href="migrate-vue-2-to-vue-3.html">Migration guide</a><a href="vue-3-breaking-changes-checklist.html">Breaking changes</a><a href="vue-compat-build-flags.html">Compat flags</a><a href="report-example.html">Sample report</a><a href="https://github.com/kwy404/vueleap">GitHub</a></nav>
-<button class="theme-toggle" type="button" v-theme-toggle><span v-text="$theme.resolved === 'dark' ? 'Light theme' : 'Dark theme'">Theme</span></button>
-</div></header>
+<header class="site" v-data="{ menu: false }" :class="{ 'menu-open': menu }" @keydown.escape="menu = false">
+<div class="container header-row">
+<a class="logo" href="./"><img src="favicon.svg" alt="" width="36" height="36"><b>vue<span>leap</span></b><span class="ver">v0.1.2</span></a>
+<nav class="main" id="site-nav" aria-label="Main"><a href="migrate-vue-2-to-vue-3.html">Migration guide</a><a href="vue-3-breaking-changes-checklist.html">Breaking changes</a><a href="vue-compat-build-flags.html">Compat flags</a><a href="report-example.html">Sample report</a></nav>
+<div class="header-actions">
+<a class="icon-btn" href="https://github.com/kwy404/vueleap" aria-label="vueleap on GitHub"><svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
+<button class="icon-btn theme-toggle" type="button" v-theme-toggle aria-label="Switch between light and dark theme"><svg class="moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></svg><svg class="sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+<button class="icon-btn menu-toggle" type="button" aria-controls="site-nav" aria-expanded="false" :aria-expanded="menu ? 'true' : 'false'" aria-label="Menu" @click="menu = !menu"><svg class="open" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="close" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+</div>
+</div>
+</header>
+<noscript><style>.menu-toggle{display:none!important}@media (max-width:960px){nav.main{display:flex;position:static;box-shadow:none;border:0;padding:0;flex-direction:row;flex-wrap:wrap}.header-row{height:auto;flex-wrap:wrap;padding-top:12px;padding-bottom:12px}}</style></noscript>
 <main id="content">
-<div class="container narrow">
+<header class="page-head mesh"><div class="container">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="./">vueleap</a><span aria-hidden="true">/</span><a href="./#guides">Guides</a><span aria-hidden="true">/</span><span aria-current="page">Vue 2 end of life</span></nav>
 <h1>Vue 2 end of life</h1>
 <p class="lede">Vue 2 reached end of life on <strong>December 31, 2023</strong>. Apps keep running, but they no longer get fixes from the Vue team, and more of the ecosystem only supports Vue 3 every month.</p>
 <p class="meta">Official announcement: <a href="https://v2.vuejs.org/lts/">Vue 2 end of life</a></p>
-<h2>What end of life means in practice</h2>
+</div></header>
+<div class="container doc">
+<article class="prose">
+<h2 id="what-end-of-life-means-in-practice">What end of life means in practice</h2>
 <ul>
 <li><strong>No security fixes</strong> for Vue 2 itself from the core team.</li>
 <li><strong>Libraries move on</strong>: vue-router 4, Vuex 4, Pinia, Vuetify 3, Element Plus and most new libraries target Vue 3 only.</li>
 <li><strong>Tooling moves on</strong>: modern build tools, test utilities and IDE support focus on Vue 3.</li>
 <li><strong>Hiring and knowledge</strong>: documentation, examples and new developers use Vue 3.</li>
 </ul>
-<h2>A low risk plan to migrate</h2>
+<h2 id="a-low-risk-plan-to-migrate">A low risk plan to migrate</h2>
 <ol class="steps">
 <li>Measure: <code>npx vueleap --html report.html</code> lists every breaking change and Vue 2 only dependency.</li>
 <li>Run on Vue 3 early with the <a href="vue-compat-build-flags.html">@vue/compat migration build</a>, using the flags vueleap prints.</li>
@@ -54,18 +65,26 @@
 <li>Remove compat flags and gate CI with <code>npx vueleap --fail-on error</code>.</li>
 </ol>
 <p>The <a href="migrate-vue-2-to-vue-3.html">step by step migration guide</a> covers each step in detail.</p>
-<h2>Frequently asked questions</h2>
-<details class="faq"><summary>When did Vue 2 reach end of life?</summary><p>Vue 2 reached end of life on December 31, 2023. Vue 2.7 was its last minor release.</p></details>
-<details class="faq"><summary>Is Vue 2 still supported?</summary><p>Not by the Vue core team: Vue 2 no longer receives updates, including security and browser compatibility fixes. The official end of life page points teams that need continued fixes to a commercial third party offer (HeroDevs Never-Ending Support), but the ecosystem has moved to Vue 3.</p></details>
-<details class="faq"><summary>Will my Vue 2 app stop working?</summary><p>No. Published versions keep working. The risk grows over time: unpatched vulnerabilities, browsers and build tools moving on, and libraries dropping Vue 2 support.</p></details>
-<details class="faq"><summary>What is the fastest way to know how much work the upgrade is?</summary><p>Run <code>npx vueleap</code> in the project. It lists every Vue 3 breaking change with file and line, the Vue 2 only dependencies, and an effort score.</p></details>
-<h2>More guides</h2>
-<div class="cards"><a class="card" href="migrate-vue-2-to-vue-3.html"><strong>How to migrate Vue 2 to Vue 3</strong><span>A step by step plan using the migration build and vueleap.</span></a><a class="card" href="vue-3-breaking-changes-checklist.html"><strong>Vue 3 breaking changes checklist</strong><span>All 41 checks, with severity, compat flag and fix.</span></a><a class="card" href="vue-compat-build-flags.html"><strong>@vue/compat build flags explained</strong><span>How configureCompat works and which flags you need.</span></a><a class="card" href="vue-filters-removed-vue-3.html"><strong>Vue filters removed in Vue 3</strong><span>Replace filters with methods, computed properties or globals.</span></a><a class="card" href="vue-event-bus-vue-3.html"><strong>Event bus in Vue 3</strong><span>Replace $on, $off and $once with mitt, props or a store.</span></a><a class="card" href="v-model-changes-vue-3.html"><strong>v-model changes in Vue 3</strong><span>modelValue, update:modelValue, v-model arguments and .sync.</span></a></div>
+<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<div class="faq-list" v-accordion v-accordion-single><div class="faq-item" v-accordion-item="open"><button type="button" class="faq-q">When did Vue 2 reach end of life?</button><div class="faq-a"><p>Vue 2 reached end of life on December 31, 2023. Vue 2.7 was its last minor release.</p></div></div>
+<div class="faq-item" v-accordion-item><button type="button" class="faq-q">Is Vue 2 still supported?</button><div class="faq-a"><p>Not by the Vue core team: Vue 2 no longer receives updates, including security and browser compatibility fixes. The official end of life page points teams that need continued fixes to a commercial third party offer (HeroDevs Never-Ending Support), but the ecosystem has moved to Vue 3.</p></div></div>
+<div class="faq-item" v-accordion-item><button type="button" class="faq-q">Will my Vue 2 app stop working?</button><div class="faq-a"><p>No. Published versions keep working. The risk grows over time: unpatched vulnerabilities, browsers and build tools moving on, and libraries dropping Vue 2 support.</p></div></div>
+<div class="faq-item" v-accordion-item><button type="button" class="faq-q">What is the fastest way to know how much work the upgrade is?</button><div class="faq-a"><p>Run <code>npx vueleap</code> in the project. It lists every Vue 3 breaking change with file and line, the Vue 2 only dependencies, and an effort score.</p></div></div></div>
+<h2 id="more-guides">More guides</h2>
+<div class="cards"><a class="card" href="migrate-vue-2-to-vue-3.html"><strong>How to migrate Vue 2 to Vue 3</strong><span>A step by step plan using the migration build and vueleap.</span><span class="go">Read the guide</span></a><a class="card" href="vue-3-breaking-changes-checklist.html"><strong>Vue 3 breaking changes checklist</strong><span>All 41 checks, with severity, compat flag and fix.</span><span class="go">Read the guide</span></a><a class="card" href="vue-compat-build-flags.html"><strong>@vue/compat build flags explained</strong><span>How configureCompat works and which flags you need.</span><span class="go">Read the guide</span></a><a class="card" href="vue-filters-removed-vue-3.html"><strong>Vue filters removed in Vue 3</strong><span>Replace filters with methods, computed properties or globals.</span><span class="go">Read the guide</span></a><a class="card" href="vue-event-bus-vue-3.html"><strong>Event bus in Vue 3</strong><span>Replace $on, $off and $once with mitt, props or a store.</span><span class="go">Read the guide</span></a><a class="card" href="v-model-changes-vue-3.html"><strong>v-model changes in Vue 3</strong><span>modelValue, update:modelValue, v-model arguments and .sync.</span><span class="go">Read the guide</span></a></div>
+
+</article>
+<aside class="toc" aria-label="On this page"><b>On this page</b><a href="#what-end-of-life-means-in-practice">What end of life means in practice</a><a href="#a-low-risk-plan-to-migrate">A low risk plan to migrate</a><a href="#frequently-asked-questions">Frequently asked questions</a><a href="#more-guides">More guides</a></aside>
 </div>
 </main>
 <footer class="site"><div class="container">
-<div>vueleap 0.1.0, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.<br>Interactive parts built with <a href="https://github.com/kwy404/Voodoo.js">Voodoo.js</a>.</div>
-<nav aria-label="Guides"><a href="migrate-vue-2-to-vue-3.html">How to migrate Vue 2 to Vue 3</a><a href="vue-3-breaking-changes-checklist.html">Vue 3 breaking changes checklist</a><a href="vue-compat-build-flags.html">@vue/compat build flags explained</a><a href="vue-filters-removed-vue-3.html">Vue filters removed in Vue 3</a><a href="vue-event-bus-vue-3.html">Event bus in Vue 3</a><a href="v-model-changes-vue-3.html">v-model changes in Vue 3</a><a href="vue-2-end-of-life.html">Vue 2 end of life</a><a href="https://www.npmjs.com/package/vueleap">npm</a></nav>
+<div class="footer-grid">
+<div class="footer-brand"><a class="logo" href="./"><img src="favicon.svg" alt="" width="36" height="36"><b>vue<span>leap</span></b></a><p>Migrate Vue 2 to Vue 3 with one command. Free and open source, MIT licensed.</p><div class="social"><a class="icon-btn" href="https://github.com/kwy404/vueleap" aria-label="vueleap on GitHub"><svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a><a class="icon-btn" href="https://www.npmjs.com/package/vueleap" aria-label="vueleap on npm"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M1 7h22v9H12v1.6H7.2V16H1V7Zm1.3 1.3v6.4h3.2V9.9h1.6v4.8h1.6V8.3H2.3Zm8 0v8h3.2v-1.6h3.2V8.3h-6.4Zm3.2 1.6h1.6v3.2h-1.6V9.9Zm4.8-1.6v6.4h3.2V9.9h1.6v4.8h1.6V8.3h-6.4Z"/></svg></a></div></div>
+<div><h2>Guides</h2><ul><li><a href="migrate-vue-2-to-vue-3.html">How to migrate Vue 2 to Vue 3</a></li><li><a href="vue-3-breaking-changes-checklist.html">Vue 3 breaking changes checklist</a></li><li><a href="vue-compat-build-flags.html">@vue/compat build flags explained</a></li><li><a href="vue-filters-removed-vue-3.html">Vue filters removed in Vue 3</a></li><li><a href="vue-event-bus-vue-3.html">Event bus in Vue 3</a></li><li><a href="v-model-changes-vue-3.html">v-model changes in Vue 3</a></li><li><a href="vue-2-end-of-life.html">Vue 2 end of life</a></li></ul></div>
+<div><h2>Project</h2><ul><li><a href="https://github.com/kwy404/vueleap">GitHub</a></li><li><a href="https://www.npmjs.com/package/vueleap">npm</a></li><li><a href="report-example.html">Sample report</a></li><li><a href="https://github.com/kwy404/vueleap/blob/main/CHANGELOG.md">Changelog</a></li><li><a href="https://github.com/kwy404/vueleap/issues">Issues</a></li><li><a href="https://github.com/kwy404/vueleap/blob/main/CONTRIBUTING.md">Contributing</a></li></ul></div>
+<div class="more-col"><h2>More from kwy404</h2><ul class="more"><li><a href="https://kwy404.github.io/graphemely/">graphemely</a><span>Truncate, slice and count strings with emoji safely.</span></li><li><a href="https://kwy404.github.io/edgegoat/">edgegoat</a><span>Edge case test inputs: time zones, DST, unicode and numbers.</span></li><li><a href="https://kwy404.github.io/numberparrot/">numberparrot</a><span>Parse localized number and currency strings back into numbers.</span></li><li><a href="https://github.com/kwy404/breakhound">breakhound</a><span>Find bugs in any JavaScript library automatically, no tests needed.</span></li><li><a href="https://github.com/kwy404/Voodoo.js">Voodoo.js</a><span>The HTML first framework behind the interactive parts of this site.</span></li></ul></div>
+</div>
+<div class="footer-bottom"><span>vueleap 0.1.2, MIT licensed. Made by <a href="https://github.com/kwy404">Alexandre Kohler</a>.</span><span>Interactive parts built with <a href="https://github.com/kwy404/Voodoo.js">Voodoo.js</a>, code highlighted with <a href="https://shiki.style/">Shiki</a>.</span></div>
 </div></footer>
 </body>
 </html>

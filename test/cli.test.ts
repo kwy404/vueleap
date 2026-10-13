@@ -4,7 +4,11 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { main } from '../src/cli.js'
 import { RULES } from '../src/rules.js'
+import { VERSION } from '../src/version.js'
 import { APP, copyFixture, EDGE, FIXTURES } from './helpers.js'
+
+/** Replaces the package version so snapshots survive releases. */
+const normalizeVersion = (text: string): string => text.split(`v${VERSION}`).join('v0.0.0')
 
 async function run(args: string[], cwd = FIXTURES): Promise<{ code: number; stdout: string; stderr: string }> {
   let stdout = ''
@@ -40,7 +44,7 @@ describe('cli', () => {
   it('prints the pretty report', async () => {
     const { code, stdout } = await run(['vue2-app'])
     expect(code).toBe(0)
-    expect(stdout).toMatchSnapshot()
+    expect(normalizeVersion(stdout)).toMatchSnapshot()
   })
 
   it('prints JSON', async () => {

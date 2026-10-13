@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-10-12
+
+### Changed
+
+- Redesigned documentation site: new hero, VS Code style editor and terminal frames for every code example, FAQ accordion, mobile menu and a footer with related projects.
+- The animated terminal demo on the home page is now real HTML text that fits small and large screens.
+- README shows monthly and total npm downloads and links related projects.
+- The CLI report snapshot no longer depends on the package version.
+
 ## [0.1.1] - 2026-10-12
 
 ### Fixed

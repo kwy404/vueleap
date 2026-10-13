@@ -1,6 +1,6 @@
 {
   "name": "vueleap",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Migrate Vue 2 to Vue 3 with one command: find every breaking change file by file and line by line, get the exact @vue/compat flags your project needs, and apply safe automatic fixes.",
   "keywords": [
     "vue",
@@ -57,7 +57,6 @@
     "dist",
     "!dist/**/*.map",
     "README.md",
-    "README.pt-BR.md",
     "LICENSE",
     "CHANGELOG.md"
   ],

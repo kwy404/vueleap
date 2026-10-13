@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-10-12
+
+### Fixed
+
+- The npm page now shows the English README. The Portuguese translation moved to `i18n/README.pt-BR.md`.
+
 ## [0.1.0] - 2026-10-12
 
 ### Added

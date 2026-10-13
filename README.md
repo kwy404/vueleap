@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/kwy404/vueleap/blob/main/README.pt-BR.md">Leia em Português (pt-BR)</a> &middot;
+  <a href="https://github.com/kwy404/vueleap/blob/main/i18n/README.pt-BR.md">Leia em Português (pt-BR)</a> &middot;
   <a href="https://kwy404.github.io/vueleap/">Documentation</a> &middot;
   <a href="https://kwy404.github.io/vueleap/report-example.html">Sample report</a> &middot;
   <a href="https://kwy404.github.io/vueleap/vue-3-breaking-changes-checklist.html">Breaking changes checklist</a>

@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
-    <img src="assets/banner.svg" width="820" alt="vueleap, the Vue 2 to Vue 3 migration tool: Hop the frog leaps from a lily pad marked 2 to a lily pad marked 3">
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/banner-dark.svg">
+    <img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/banner.svg" width="820" alt="vueleap, the Vue 2 to Vue 3 migration tool: Hop the frog leaps from a lily pad marked 2 to a lily pad marked 3">
   </picture>
 </p>
 
@@ -10,12 +10,12 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/vueleap"><img src="https://img.shields.io/npm/v/vueleap?color=42b883&label=npm" width="80" alt="vueleap npm version"></a>
   <a href="https://github.com/kwy404/vueleap/actions/workflows/ci.yml"><img src="https://github.com/kwy404/vueleap/actions/workflows/ci.yml/badge.svg" width="96" alt="CI status of the Vue 3 migration tool"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/npm/l/vueleap?color=42b883" width="78" alt="MIT license"></a>
-  <a href="package.json"><img src="https://img.shields.io/node/v/vueleap?color=42b883" width="90" alt="Node.js 18 or newer"></a>
+  <a href="https://github.com/kwy404/vueleap/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/vueleap?color=42b883" width="78" alt="MIT license"></a>
+  <a href="https://github.com/kwy404/vueleap/blob/main/package.json"><img src="https://img.shields.io/node/v/vueleap?color=42b883" width="90" alt="Node.js 18 or newer"></a>
 </p>
 
 <p align="center">
-  <a href="README.pt-BR.md">Leia em Português (pt-BR)</a> &middot;
+  <a href="https://github.com/kwy404/vueleap/blob/main/README.pt-BR.md">Leia em Português (pt-BR)</a> &middot;
   <a href="https://kwy404.github.io/vueleap/">Documentation</a> &middot;
   <a href="https://kwy404.github.io/vueleap/report-example.html">Sample report</a> &middot;
   <a href="https://kwy404.github.io/vueleap/vue-3-breaking-changes-checklist.html">Breaking changes checklist</a>
@@ -29,19 +29,19 @@ npx vueleap
 
 <table>
   <tr>
-    <td width="33%" valign="top"><img src="assets/icons/scan.svg" width="40" alt="Scan icon: Vue 2 to Vue 3 breaking changes checker"><br><b>Scan the whole project</b><br>41 checks over templates, scripts, styles and package.json, with file, line and column.</td>
-    <td width="33%" valign="top"><img src="assets/icons/fix.svg" width="40" alt="Wrench icon: safe automatic Vue 3 codemods"><br><b>Apply safe fixes</b><br>8 codemods that are provably safe, shown as a diff before anything is written.</td>
-    <td width="33%" valign="top"><img src="assets/icons/compat.svg" width="40" alt="Toggle icon: @vue/compat build flags"><br><b>Get exact compat flags</b><br>The minimal <code>configureCompat</code> and <code>compatConfig</code> for the migration build.</td>
+    <td width="33%" valign="top"><img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/icons/scan.svg" width="40" alt="Scan icon: Vue 2 to Vue 3 breaking changes checker"><br><b>Scan the whole project</b><br>41 checks over templates, scripts, styles and package.json, with file, line and column.</td>
+    <td width="33%" valign="top"><img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/icons/fix.svg" width="40" alt="Wrench icon: safe automatic Vue 3 codemods"><br><b>Apply safe fixes</b><br>8 codemods that are provably safe, shown as a diff before anything is written.</td>
+    <td width="33%" valign="top"><img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/icons/compat.svg" width="40" alt="Toggle icon: @vue/compat build flags"><br><b>Get exact compat flags</b><br>The minimal <code>configureCompat</code> and <code>compatConfig</code> for the migration build.</td>
   </tr>
   <tr>
-    <td width="33%" valign="top"><img src="assets/icons/report.svg" width="40" alt="Chart icon: HTML Vue 3 migration report"><br><b>Share an HTML report</b><br>One standalone file with filters, light and dark themes and guide links.</td>
-    <td width="33%" valign="top"><img src="assets/icons/ci.svg" width="40" alt="Pipeline icon: Vue 3 migration checks in CI"><br><b>Gate it in CI</b><br><code>--fail-on error</code> and <code>--json</code> keep Vue 2 only code from coming back.</td>
-    <td width="33%" valign="top"><img src="assets/icons/api.svg" width="40" alt="Braces icon: programmatic Node.js API"><br><b>Use the API</b><br><code>analyze()</code> and <code>fix()</code> from Node.js for your own tooling.</td>
+    <td width="33%" valign="top"><img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/icons/report.svg" width="40" alt="Chart icon: HTML Vue 3 migration report"><br><b>Share an HTML report</b><br>One standalone file with filters, light and dark themes and guide links.</td>
+    <td width="33%" valign="top"><img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/icons/ci.svg" width="40" alt="Pipeline icon: Vue 3 migration checks in CI"><br><b>Gate it in CI</b><br><code>--fail-on error</code> and <code>--json</code> keep Vue 2 only code from coming back.</td>
+    <td width="33%" valign="top"><img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/icons/api.svg" width="40" alt="Braces icon: programmatic Node.js API"><br><b>Use the API</b><br><code>analyze()</code> and <code>fix()</code> from Node.js for your own tooling.</td>
   </tr>
 </table>
 
 <p align="center">
-  <img src="assets/demo.svg" width="100%" alt="Animated terminal demo: npx vueleap scans a Vue 2 app and prints Vue 3 breaking changes such as filters, beforeDestroy renames and keyCode modifiers, then a summary with an effort score">
+  <img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/demo.svg" width="100%" alt="Animated terminal demo: npx vueleap scans a Vue 2 app and prints Vue 3 breaking changes such as filters, beforeDestroy renames and keyCode modifiers, then a summary with an effort score">
 </p>
 
 ## Table of contents
@@ -75,10 +75,10 @@ npx vueleap --fix --write        # apply them
 
 vueleap reads `.vue` single file components (template, `<script>`, `<script setup>`, `<style>`), JavaScript, TypeScript, JSX, TSX, CSS, SCSS, Less and Stylus files, plus `package.json`. It respects `.gitignore` (including nested ones), always skips `node_modules` and `dist`, and never follows symbolic links. Pug templates are skipped with a warning, the rest of the file is still analyzed.
 
-This is the real output for the sample app in [`test/fixtures/vue2-app`](test/fixtures/vue2-app) (excerpt):
+This is the real output for the sample app in [`test/fixtures/vue2-app`](https://github.com/kwy404/vueleap/tree/main/test/fixtures/vue2-app) (excerpt):
 
 <p align="center">
-  <img src="assets/terminal.svg" width="100%" alt="vueleap terminal report for a Vue 2 app: Vue 3 breaking changes grouped by rule, each with file, line, column, migration guide link and @vue/compat flag">
+  <img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/terminal.svg" width="100%" alt="vueleap terminal report for a Vue 2 app: Vue 3 breaking changes grouped by rule, each with file, line, column, migration guide link and @vue/compat flag">
 </p>
 
 | Option | Description |
@@ -179,7 +179,7 @@ The [migration build](https://v3-migration.vuejs.org/migration-build) (`@vue/com
 npx vueleap --compat
 ```
 
-Real output for [`test/fixtures/edge-cases`](test/fixtures/edge-cases):
+Real output for [`test/fixtures/edge-cases`](https://github.com/kwy404/vueleap/tree/main/test/fixtures/edge-cases):
 
 ```js
 // main.js (with 'vue' aliased to '@vue/compat')
@@ -227,7 +227,7 @@ Every flag name is checked by the test suite against the `DeprecationTypes` and 
 `npx vueleap --html report.html` writes one standalone file (no external scripts or styles) that you can attach to a ticket or share with your team. It has summary cards, the compat configuration with a copy button, filters by severity, rule, text and fixability, and light and dark themes. [Open the live sample report](https://kwy404.github.io/vueleap/report-example.html).
 
 <p align="center">
-  <img src="assets/report.png" width="100%" alt="vueleap HTML report for a Vue 2 app: summary cards with errors, warnings and auto fixable count, minimal @vue/compat configuration and Vue 3 breaking changes grouped by rule">
+  <img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/report.png" width="100%" alt="vueleap HTML report for a Vue 2 app: summary cards with errors, warnings and auto fixable count, minimal @vue/compat configuration and Vue 3 breaking changes grouped by rule">
 </p>
 
 ## How do I run vueleap in CI?
@@ -340,7 +340,7 @@ They work well together: run vueleap to see the size of the migration and to con
 
 ## Contributing
 
-Issues and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) explains the architecture and how to add a rule in a few steps (register it, detect it, add a fixture, update the snapshot).
+Issues and pull requests are welcome. [CONTRIBUTING.md](https://github.com/kwy404/vueleap/blob/main/CONTRIBUTING.md) explains the architecture and how to add a rule in a few steps (register it, detect it, add a fixture, update the snapshot).
 
 ```bash
 npm install
@@ -349,4 +349,4 @@ npm run build && npm run typecheck && npm run lint && npm test
 
 ## License
 
-[MIT](LICENSE) &copy; 2026 [Alexandre Kohler](https://github.com/kwy404)
+[MIT](https://github.com/kwy404/vueleap/blob/main/LICENSE) &copy; 2026 [Alexandre Kohler](https://github.com/kwy404)

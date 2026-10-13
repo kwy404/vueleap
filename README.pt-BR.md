@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
-    <img src="assets/banner.svg" width="820" alt="vueleap, ferramenta de migração do Vue 2 para o Vue 3: o sapo Hop pula da vitória-régia 2 para a vitória-régia 3">
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/banner-dark.svg">
+    <img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/banner.svg" width="820" alt="vueleap, ferramenta de migração do Vue 2 para o Vue 3: o sapo Hop pula da vitória-régia 2 para a vitória-régia 3">
   </picture>
 </p>
 
@@ -10,12 +10,12 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/vueleap"><img src="https://img.shields.io/npm/v/vueleap?color=42b883&label=npm" width="80" alt="versão do vueleap no npm"></a>
   <a href="https://github.com/kwy404/vueleap/actions/workflows/ci.yml"><img src="https://github.com/kwy404/vueleap/actions/workflows/ci.yml/badge.svg" width="96" alt="status do CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/npm/l/vueleap?color=42b883" width="78" alt="licença MIT"></a>
-  <a href="package.json"><img src="https://img.shields.io/node/v/vueleap?color=42b883" width="90" alt="Node.js 18 ou mais recente"></a>
+  <a href="https://github.com/kwy404/vueleap/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/vueleap?color=42b883" width="78" alt="licença MIT"></a>
+  <a href="https://github.com/kwy404/vueleap/blob/main/package.json"><img src="https://img.shields.io/node/v/vueleap?color=42b883" width="90" alt="Node.js 18 ou mais recente"></a>
 </p>
 
 <p align="center">
-  <a href="README.md">Read in English</a> &middot;
+  <a href="https://github.com/kwy404/vueleap/blob/main/README.md">Read in English</a> &middot;
   <a href="https://kwy404.github.io/vueleap/">Documentação</a> &middot;
   <a href="https://kwy404.github.io/vueleap/report-example.html">Relatório de exemplo</a>
 </p>
@@ -27,7 +27,7 @@ npx vueleap
 ```
 
 <p align="center">
-  <img src="assets/demo.svg" width="100%" alt="Demonstração animada no terminal: npx vueleap analisa um app Vue 2 e lista breaking changes do Vue 3 como filters, beforeDestroy e modificadores keyCode, com um resumo e uma pontuação de esforço">
+  <img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/demo.svg" width="100%" alt="Demonstração animada no terminal: npx vueleap analisa um app Vue 2 e lista breaking changes do Vue 3 como filters, beforeDestroy e modificadores keyCode, com um resumo e uma pontuação de esforço">
 </p>
 
 ## Sumário
@@ -57,7 +57,7 @@ O comando `vue2to3` também é instalado como alias.
 O vueleap lê componentes `.vue` (template, `<script>`, `<script setup>`, `<style>`), arquivos JavaScript, TypeScript, JSX, TSX, CSS, SCSS, Less e Stylus, além do `package.json`. Ele respeita o `.gitignore`, sempre ignora `node_modules` e `dist` e nunca segue links simbólicos. Templates Pug são ignorados com um aviso.
 
 <p align="center">
-  <img src="assets/terminal.svg" width="100%" alt="Relatório do vueleap no terminal para um app Vue 2: breaking changes do Vue 3 agrupadas por regra com arquivo, linha, coluna, link do guia e flag do @vue/compat">
+  <img src="https://cdn.jsdelivr.net/gh/kwy404/vueleap@main/assets/terminal.svg" width="100%" alt="Relatório do vueleap no terminal para um app Vue 2: breaking changes do Vue 3 agrupadas por regra com arquivo, linha, coluna, link do guia e flag do @vue/compat">
 </p>
 
 | Opção | Descrição |
@@ -74,7 +74,7 @@ O vueleap lê componentes `.vue` (template, `<script>`, `<script setup>`, `<styl
 
 ## O que o vueleap verifica?
 
-41 regras baseadas no [guia oficial de migração do Vue 3](https://v3-migration.vuejs.org/breaking-changes/). **error** quebra na compilação ou em execução, **warning** muda o comportamento e **info** merece revisão. A tabela completa, com descrições em inglês, está no [README em inglês](README.md#what-does-vueleap-check) e no [checklist de breaking changes](https://kwy404.github.io/vueleap/vue-3-breaking-changes-checklist.html).
+41 regras baseadas no [guia oficial de migração do Vue 3](https://v3-migration.vuejs.org/breaking-changes/). **error** quebra na compilação ou em execução, **warning** muda o comportamento e **info** merece revisão. A tabela completa, com descrições em inglês, está no [README em inglês](https://github.com/kwy404/vueleap/blob/main/README.md#what-does-vueleap-check) e no [checklist de breaking changes](https://kwy404.github.io/vueleap/vue-3-breaking-changes-checklist.html).
 
 Principais verificações: filters, `$listeners`, `$scopedSlots`, event bus com `$on`/`$off`/`$once`, `$set` e `$delete`, `new Vue()` e a API global (`Vue.component`, `Vue.use`, `Vue.mixin`, `Vue.directive`, `Vue.prototype`), `Vue.extend`, `beforeDestroy` e `destroyed`, hooks de diretivas customizadas, `v-model` em componentes, `.sync`, `.native`, modificadores keyCode, componentes funcionais, `inline-template`, `<template v-for>` com `key` nos filhos, `v-if` com `v-for`, ordem do `v-bind="obj"`, classes de transição, render functions com `h`, `data` como objeto, watchers de arrays, `Vue.config`, além de vue-router 3, Vuex 3 e bibliotecas só para Vue 2 (BootstrapVue, Vuetify 2, Element UI e outras) no `package.json`.
 
@@ -150,8 +150,8 @@ Não. O Vue 2 chegou ao fim da vida (end of life) em **31 de dezembro de 2023** 
 
 ## Contribuindo
 
-Issues e pull requests são bem-vindos. Veja o [CONTRIBUTING.md](CONTRIBUTING.md) (em inglês) para saber como adicionar uma regra.
+Issues e pull requests são bem-vindos. Veja o [CONTRIBUTING.md](https://github.com/kwy404/vueleap/blob/main/CONTRIBUTING.md) (em inglês) para saber como adicionar uma regra.
 
 ## Licença
 
-[MIT](LICENSE) &copy; 2026 [Alexandre Kohler](https://github.com/kwy404)
+[MIT](https://github.com/kwy404/vueleap/blob/main/LICENSE) &copy; 2026 [Alexandre Kohler](https://github.com/kwy404)

@@ -350,6 +350,11 @@ They work well together: run vueleap to see the size of the migration and to con
 - [graphemely](https://kwy404.github.io/graphemely/): truncate, slice and count strings with emoji safely.
 - [numberparrot](https://kwy404.github.io/numberparrot/): parse localized number and currency strings back into numbers.
 - [edgegoat](https://kwy404.github.io/edgegoat/): edge case test inputs for time zones, DST, unicode and numbers.
+- [cookieowl](https://kwy404.github.io/cookieowl/): free cookie consent banner for LGPD and GDPR that really blocks trackers.
+- [installkite](https://kwy404.github.io/installkite/): make any website installable and offline capable.
+- [a11ymedic](https://kwy404.github.io/a11ymedic/): the accessibility checker that explains every problem and gives the exact fix.
+- [fontsketch](https://kwy404.github.io/fontsketch/): turn your handwriting into a font, free in your browser.
+- [kastor](https://kwy404.github.io/kastor/): the TypeScript ORM for almost every database.
 
 ## Author
 

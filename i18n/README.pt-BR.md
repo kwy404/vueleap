@@ -148,6 +148,20 @@ Não. O Vue 2 chegou ao fim da vida (end of life) em **31 de dezembro de 2023** 
 - [v-model changes in Vue 3](https://kwy404.github.io/vueleap/v-model-changes-vue-3.html)
 - [Vue 2 end of life](https://kwy404.github.io/vueleap/vue-2-end-of-life.html)
 
+## Mais de kwy404
+
+- [Monsoon](https://kwy404.github.io/monsoon/): CSS utility-first sem etapa de build, o framework com que o site da documentação é feito.
+- [Voodoo.js](https://kwy404.github.io/Voodoo.js/): o framework HTML first por trás das partes interativas do site da documentação.
+- [breakhound](https://kwy404.github.io/breakhound/): encontre bugs em qualquer biblioteca JavaScript automaticamente, sem escrever testes.
+- [graphemely](https://kwy404.github.io/graphemely/): truncar, fatiar e contar strings com emoji com segurança.
+- [numberparrot](https://kwy404.github.io/numberparrot/): converta números e valores monetários localizados de volta em números.
+- [edgegoat](https://kwy404.github.io/edgegoat/): entradas de teste para casos extremos de fuso horário, horário de verão, unicode e números.
+- [cookieowl](https://kwy404.github.io/cookieowl/): banner de cookies gratuito para LGPD e GDPR que bloqueia rastreadores de verdade.
+- [installkite](https://kwy404.github.io/installkite/): torne qualquer site instalável e com funcionamento offline.
+- [a11ymedic](https://kwy404.github.io/a11ymedic/): verificador de acessibilidade que explica cada problema e entrega a correção exata.
+- [fontsketch](https://kwy404.github.io/fontsketch/): crie uma fonte com a sua letra, grátis e no navegador.
+- [kastor](https://kwy404.github.io/kastor/): o ORM para TypeScript para quase todos os bancos de dados.
+
 ## Contribuindo
 
 Issues e pull requests são bem-vindos. Veja o [CONTRIBUTING.md](https://github.com/kwy404/vueleap/blob/main/CONTRIBUTING.md) (em inglês) para saber como adicionar uma regra.

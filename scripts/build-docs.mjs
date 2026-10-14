@@ -175,6 +175,11 @@ const MORE = [
   ['graphemely', 'https://kwy404.github.io/graphemely/', 'Emoji safe string truncation.'],
   ['numberparrot', 'https://kwy404.github.io/numberparrot/', 'Parse localized numbers back.'],
   ['edgegoat', 'https://kwy404.github.io/edgegoat/', 'Edge case test inputs.'],
+  ['cookieowl', 'https://kwy404.github.io/cookieowl/', 'Cookie consent for LGPD and GDPR.'],
+  ['installkite', 'https://kwy404.github.io/installkite/', 'Make any website installable and offline.'],
+  ['a11ymedic', 'https://kwy404.github.io/a11ymedic/', 'Accessibility checks with the exact fix.'],
+  ['fontsketch', 'https://kwy404.github.io/fontsketch/', 'Turn your handwriting into a font.'],
+  ['kastor', 'https://kwy404.github.io/kastor/', 'The TypeScript ORM for almost every database.'],
 ]
 
 function jsonLd(data) {

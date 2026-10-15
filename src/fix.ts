@@ -2,7 +2,8 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { createTwoFilesPatch } from 'diff'
 import { analyze } from './analyze.js'
-import type { AnalysisResult, AnalyzeOptions, Finding, TextEdit } from './types.js'
+import { applyEdits } from './source.js'
+import type { AnalysisResult, AnalyzeOptions, Finding } from './types.js'
 
 export interface FileFix {
   /** Path relative to the project root. */
@@ -27,18 +28,7 @@ export interface FixResult {
   written: boolean
 }
 
-/** Applies non overlapping edits to a text. Overlapping edits are dropped, the first one wins. */
-export function applyEdits(text: string, edits: readonly TextEdit[]): string {
-  const sorted = [...edits].sort((a, b) => a.start - b.start || a.end - b.end)
-  let output = ''
-  let cursor = 0
-  for (const edit of sorted) {
-    if (edit.start < cursor || edit.end < edit.start || edit.end > text.length) continue
-    output += text.slice(cursor, edit.start) + edit.text
-    cursor = edit.end
-  }
-  return output + text.slice(cursor)
-}
+export { applyEdits }
 
 /** Resolves a project relative path and refuses anything outside the project. */
 async function resolveInside(root: string, file: string): Promise<string> {

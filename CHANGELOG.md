@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `analyzeSource(code, { filename })` analyzes one file held in memory, with no project folder needed.
+- `fixSource(code, { filename })` applies the same safe fixes as `--fix` to one file in memory and returns the new code, the ranges it rewrote and what is left to do by hand.
+- Both functions avoid Node built-ins, so they also run in the browser. The live demo on the website uses them.
+
 ## [1.0.0] - 2026-10-13
 
 ### Changed

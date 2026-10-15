@@ -1,12 +1,12 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import ignore, { type Ignore } from 'ignore'
+import { SCRIPT_EXTENSIONS, STYLE_EXTENSIONS } from './source.js'
 
 /** Directories that are never scanned. */
 export const ALWAYS_SKIPPED = new Set(['node_modules', 'dist', '.git', '.nuxt', '.output', 'coverage'])
 
-export const SCRIPT_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.jsx', '.ts', '.mts', '.cts', '.tsx'])
-export const STYLE_EXTENSIONS = new Set(['.css', '.scss', '.sass', '.less', '.styl', '.stylus', '.pcss', '.postcss'])
+export { SCRIPT_EXTENSIONS, STYLE_EXTENSIONS }
 
 export interface ListFilesOptions {
   ignore?: string[]

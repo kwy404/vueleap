@@ -57,7 +57,8 @@
     "docs:png": "bash scripts/render-png.sh",
     "docs:highlight": "node scripts/highlight-docs.mjs",
     "docs:check": "node scripts/check-docs.mjs",
-    "docs:live": "node scripts/build-live.mjs"
+    "docs:live": "node scripts/build-live.mjs",
+    "docs:seasons": "node scripts/season-art.mjs"
   },
   "dependencies": {
     "@babel/parser": "^7.29.9",

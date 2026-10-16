@@ -43,15 +43,15 @@ function load(browser?: { search?: string; lang?: string; stored?: Record<string
     sandbox.matchMedia = () => ({ matches: true })
   }
   const RealDate = Date
-  const now = browser?.now
-  const FakeDate = now
-    ? (class extends RealDate {
-        constructor(...args: ConstructorParameters<typeof Date>) {
-          if (args.length === 0) super(now.getTime())
-          else super(...args)
+  const now: number = browser?.now?.getTime() ?? Date.now()
+  const FakeDate = !browser?.now
+    ? RealDate
+    : (class extends RealDate {
+        constructor(...args: unknown[]) {
+          if (args.length === 0) super(now)
+          else super(...(args as [number, number, number]))
         }
       } as DateConstructor)
-    : RealDate
   new Function('window', 'globalThis', 'Date', source)(browser ? sandbox : undefined, sandbox, FakeDate)
   return { api: sandbox.vueleapSeasons as Seasons, html, chip: () => chipHtml }
 }

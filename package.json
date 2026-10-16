@@ -1,6 +1,6 @@
 {
   "name": "vueleap",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Find what breaks when a Vue 2 app moves to Vue 3, apply the safe fixes and get the @vue/compat flags it needs.",
   "keywords": [
     "vue",

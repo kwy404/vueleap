@@ -3,11 +3,31 @@
 (function () {
   'use strict'
 
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // Reveal journey pieces as they scroll in. Without the observer, or with
+  // reduced motion, everything is simply visible.
+  var reveals = document.querySelectorAll('.reveal')
+  if (reveals.length && 'IntersectionObserver' in window && !reduced) {
+    document.documentElement.classList.add('js-reveal')
+    var seen = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-in')
+          seen.unobserve(entry.target)
+        }
+      })
+    }, { rootMargin: '0px 0px -10% 0px' })
+    Array.prototype.forEach.call(reveals, function (el) { seen.observe(el) })
+  }
+
   // The journey: fill the route line as the stops scroll past, light the stops reached.
   var journey = document.querySelector('.journey')
   if (journey) {
     var stops = Array.prototype.slice.call(journey.querySelectorAll('.stop'))
     var items = Array.prototype.slice.call(journey.querySelectorAll('.route-stop'))
+    var hop = journey.querySelector('.route-hop')
+    var lastStop = -2
     var queued = false
     var update = function () {
       queued = false
@@ -27,6 +47,13 @@
         }
       }
       journey.style.setProperty('--p', progress.toFixed(4))
+      // Hop gives a little jump each time a new stop is reached.
+      if (hop && current !== lastStop && lastStop !== -2 && !reduced) {
+        hop.classList.remove('is-leaping')
+        void hop.offsetWidth
+        hop.classList.add('is-leaping')
+      }
+      lastStop = current
       items.forEach(function (item, index) {
         item.classList.toggle('is-reached', index <= current)
         item.classList.toggle('is-current', index === current)

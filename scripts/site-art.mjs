@@ -124,57 +124,9 @@ ${reed(30, 446, 120, 14)}${reed(44, 446, 160, -6)}${reed(58, 446, 104, 22)}${ree
 </g>
 <circle class="water" cx="150" cy="96" r="4"/><circle class="water" cx="168" cy="72" r="2.6"/><circle class="water" cx="138" cy="66" r="2"/>
 </g>
-<svg x="100" y="128" width="400" height="300" viewBox="0 0 400 300">${mascotInner(mascot)}</svg>
+<g class="hero-hop"><svg x="100" y="128" width="400" height="300" viewBox="0 0 400 300">${mascotInner(mascot)}</svg></g>
 </svg>`
 }
-
-/** The 2 to 3 metamorphosis: four stages, each its own drawing. */
-export const METAMORPHOSIS = [
-  [
-    'Spawn',
-    'A Vue 2 app',
-    `<path class="leaf tint" d="${padPath(100, 112, 70, 20, -18, 30)}"/>
-${[
-  [78, 82, 13],
-  [104, 74, 14],
-  [128, 86, 12],
-  [92, 100, 12],
-  [118, 102, 11],
-  [64, 98, 9],
-  [140, 104, 8],
-]
-  .map(([cx, cy, r]) => `<circle class="ink fill-bg" cx="${cx}" cy="${cy}" r="${r}"/><circle class="leaf-dot" cx="${cx + 2}" cy="${cy - 1}" r="${r * 0.32}"/>`)
-  .join('')}
-<text x="100" y="44" text-anchor="middle" class="art-label">2</text>`,
-  ],
-  [
-    'Tadpole',
-    'Measured and planned',
-    `<path class="water" d="M24 126h152M44 136h112"/>
-<ellipse class="ink tint" cx="80" cy="86" rx="24" ry="19"/><circle class="leaf-dot" cx="70" cy="80" r="3.6"/>
-<path class="ink" d="M103 82c14-9 24 8 38-2s20 6 34-4"/><path class="ink" d="M103 92c14 3 26-4 40 2s20 0 30-6"/>
-<path class="water" d="M38 58c4-6 10-6 14 0M150 50c3-4 8-4 11 0"/>`,
-  ],
-  [
-    'Froglet',
-    'Running on @vue/compat',
-    `<path class="leaf tint" d="${padPath(100, 118, 64, 16, 200, 30)}"/>
-<ellipse class="ink tint" cx="98" cy="82" rx="30" ry="22"/><circle class="ink fill-bg" cx="82" cy="60" r="9"/><circle class="ink fill-bg" cx="112" cy="60" r="9"/>
-<circle class="leaf-dot" cx="84" cy="61" r="3.4"/><circle class="leaf-dot" cx="114" cy="61" r="3.4"/>
-<path class="ink" d="M70 94c-10 4-14 12-10 20h10M126 94c10 4 14 12 10 20h-10"/><path class="ink" d="M127 76c16-2 26 6 38 0"/><path class="ink" d="M88 88c6 4 14 4 20 0"/>`,
-  ],
-  [
-    'Frog',
-    'Pure Vue 3',
-    `<path class="leaf tint" d="${padPath(100, 116, 74, 20, -20, 30)}"/>
-<ellipse class="ink tint" cx="100" cy="84" rx="38" ry="26"/><circle class="ink fill-bg" cx="80" cy="58" r="11"/><circle class="ink fill-bg" cx="120" cy="58" r="11"/>
-<circle class="leaf-dot" cx="82" cy="59" r="4.2"/><circle class="leaf-dot" cx="122" cy="59" r="4.2"/>
-<path class="ink" d="M84 90c10 7 22 7 32 0"/><path class="ink" d="M64 100c-10 6-12 12-4 14h14M136 100c10 6 12 12 4 14h-14"/>
-<text x="164" y="44" text-anchor="middle" class="art-label">3</text>`,
-  ],
-]
-
-export const metamorphosisArt = (body, label) => `${svgOpen('0 0 200 150', 'meta-art', null, label)}<g stroke-width="2.4">${body}</g></svg>`
 
 /** A wide divider: a water line with ripples and a few pads. */
 export const rippleDivider = () =>

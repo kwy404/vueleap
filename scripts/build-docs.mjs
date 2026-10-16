@@ -1,18 +1,21 @@
 // Writes the static documentation site in docs/ (served by GitHub Pages as is).
-// The rule tables, the sample report viewer, the compat config and the fix
-// preview are generated from the real CLI so they never drift.
+// The live demo results, the rule tables, the compat config and the fix
+// preview are generated from the real code so they never drift.
 //
 // Styling: Monsoon (monsooncss 0.2.0 from the CDN) plus docs/style.css for the
 // pond and journey pieces. Interactivity: Voodoo.js 1.0.0 directives in the
-// markup, plus docs/site.js for the scroll progress line and search keys.
+// markup, docs/site.js for the journey and search keys, docs/live/ for the
+// live demo and docs/seasons.js for the seasonal themes.
 //
-//   npm run build && node scripts/build-docs.mjs && node scripts/highlight-docs.mjs
+//   npm run build && node scripts/build-live.mjs && node scripts/build-docs.mjs && node scripts/highlight-docs.mjs
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { analyze, compatSnippet, formatPretty, planFixes, RULES, RULES_BY_ID, VERSION } from '../dist/index.js'
+import { analyze, analyzeSource, compatSnippet, fixSource, formatPretty, planFixes, RULES, VERSION } from '../dist/index.js'
+import { findingMarks, gutter, kindOf, render, reportHtml, slim } from '../docs/live/view.js'
 import { copyButton, fileIcon } from './frame-parts.mjs'
-import { BRAND, heroPond, icon, METAMORPHOSIS, metamorphosisArt, padBadge, padNode, rippleDivider, splashArt, ui } from './site-art.mjs'
+import { EXAMPLES } from './live/examples.mjs'
+import { BRAND, heroPond, icon, padBadge, padNode, rippleDivider, splashArt, ui } from './site-art.mjs'
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const docs = path.join(root, 'docs')
@@ -21,7 +24,7 @@ const REPO = 'https://github.com/kwy404/vueleap'
 const NPM = 'https://www.npmjs.com/package/vueleap'
 const LINKEDIN = 'https://www.linkedin.com/in/alexandre-silva-173687256/'
 const PUBLISHED = '2026-10-12'
-const DATE = '2026-10-13'
+const DATE = '2026-10-15'
 const AUTHOR = { '@type': 'Person', name: 'Alexandre Kohler', url: 'https://github.com/kwy404', sameAs: ['https://github.com/kwy404', LINKEDIN] }
 const MONSOON_CSS = 'https://cdn.jsdelivr.net/npm/monsooncss@0.2.0/dist/monsoon.min.css'
 const VOODOO_JS = 'https://cdn.jsdelivr.net/npm/voodoojs@1.0.0/dist/voodoo.full.min.js'
@@ -139,9 +142,10 @@ function demoTerminal() {
 
 // Navigation. The top bar is the same everywhere; guides add the stepper.
 const NAV = [
+  ['index.html#try', 'Try it'],
   ['index.html#journey', 'Journey'],
   ['migrate-vue-2-to-vue-3.html', 'Migration guide'],
-  ['vue-3-breaking-changes-checklist.html', 'Breaking changes'],
+  ['vue-3-breaking-changes-checklist.html', 'Rules'],
   ['vue-compat-build-flags.html', 'Compat flags'],
   ['report-example.html', 'Sample report'],
 ]
@@ -149,13 +153,10 @@ const NAV = [
 // The guides, in reading order: each one is a stop on the stepper.
 // [href, short label, title, description, icon]
 const GUIDES = [
-  ['vue-2-end-of-life.html', 'End of life', 'Vue 2 end of life', 'What the end of support means and why to plan the upgrade now.', 'eol'],
-  ['migrate-vue-2-to-vue-3.html', 'Migration plan', 'How to migrate Vue 2 to Vue 3', 'A step by step plan using the migration build and vueleap.', 'plan'],
-  ['vue-3-breaking-changes-checklist.html', 'Breaking changes', 'Vue 3 breaking changes checklist', `All ${RULES.length} checks, with severity, compat flag and fix.`, 'checklist'],
-  ['vue-compat-build-flags.html', 'Compat flags', '@vue/compat build flags explained', 'How configureCompat works and which flags you need.', 'compat'],
-  ['vue-filters-removed-vue-3.html', 'Filters', 'Vue filters removed in Vue 3', 'Replace filters with methods, computed properties or globals.', 'filters'],
-  ['vue-event-bus-vue-3.html', 'Event bus', 'Event bus in Vue 3', 'Replace $on, $off and $once with mitt, props or a store.', 'bus'],
-  ['v-model-changes-vue-3.html', 'v-model', 'v-model changes in Vue 3', 'modelValue, update:modelValue, v-model arguments and .sync.', 'vmodel'],
+  ['migrate-vue-2-to-vue-3.html', 'Migration guide', 'Migration guide', 'The whole upgrade in seven steps, with the migration build.', 'plan'],
+  ['vue-3-breaking-changes-checklist.html', 'Rules', 'Rules reference', `All ${RULES.length} checks, with severity, compat flag and fix.`, 'checklist'],
+  ['vue-compat-build-flags.html', 'Compat flags', 'Compat flags', 'How the migration build works and which flags you need.', 'compat'],
+  ['v-model-changes-vue-3.html', 'v-model', 'v-model on components', 'modelValue, update:modelValue, arguments and .sync.', 'vmodel'],
 ]
 
 // Journey stops on the home page: [id, label, short text].
@@ -312,7 +313,7 @@ function layout({ slug, title, description, body, ld, bodyClass = '' }) {
 <meta property="og:image" content="${SITE}og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="vueleap, the Vue 2 to Vue 3 migration tool, with Hop the frog leaping from lily pad 2 to lily pad 3">
+<meta property="og:image:alt" content="Hop the frog leaping from lily pad 2 to lily pad 3">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
@@ -323,7 +324,7 @@ function layout({ slug, title, description, body, ld, bodyClass = '' }) {
 <link rel="stylesheet" href="style.css">
 <script src="${VOODOO_JS}" defer></script>
 <script src="site.js" defer></script>
-${jsonLd({ '@context': 'https://schema.org', ...(Array.isArray(ld) ? { '@graph': ld } : ld) })}
+${slug === 'index.html' ? '<script type="module" src="live/demo.js"></script>\n' : ''}${jsonLd({ '@context': 'https://schema.org', ...(Array.isArray(ld) ? { '@graph': ld } : ld) })}
 </head>
 <body class="antialiased bg-background text-foreground ${bodyClass}">
 <a class="skip-link" href="#content">Skip to content</a>
@@ -359,17 +360,17 @@ function guidePage(slug, body, { wide = false } = {}) {
   const next = GUIDES[index + 1]
   const card = (cls, href, dir, title, text, rel = '') =>
     `<a class="pager-card${cls ? ` ${cls}` : ''}" href="${href}"${rel ? ` rel="${rel}"` : ''}><span class="pager-dir">${dir}</span><span class="pager-title">${title}</span><span class="pager-text">${text}</span></a>`
-  const pager = `<nav class="stop-pager" aria-label="Previous and next stop">
-${prev ? card('', prev[0], `${ui('back', 16)} Previous stop`, prev[2], prev[3], 'prev') : card('', './#journey', `${ui('back', 16)} Back to the pond`, 'The migration journey', 'Scan, understand, fix, compat and ship, on one page.')}
-${next ? card('is-next', next[0], `Next stop ${ui('arrow', 16)}`, next[2], next[3], 'next') : card('is-next', 'report-example.html', `Last stop ${ui('arrow', 16)}`, 'See a real report', 'The HTML report vueleap generated for a sample Vue 2 shop.')}
+  const pager = `<nav class="stop-pager" aria-label="Previous and next guide">
+${prev ? card('', prev[0], `${ui('back', 16)} Previous`, prev[2], prev[3], 'prev') : card('', './#try', `${ui('back', 16)} Home`, 'Try it in the browser', 'Paste a Vue 2 component and read the Vue 3 version.')}
+${next ? card('is-next', next[0], `Next ${ui('arrow', 16)}`, next[2], next[3], 'next') : card('is-next', 'report-example.html', `See it run ${ui('arrow', 16)}`, 'Sample report', 'The HTML report vueleap wrote for a sample Vue 2 shop.')}
 </nav>`
-  return `<div class="stepbar"><nav class="stepbar-in" aria-label="Guide stops"><ol class="stones" style="--done:${index / (GUIDES.length - 1)}">${stones}</ol></nav></div>
+  return `<div class="stepbar"><nav class="stepbar-in" aria-label="Guides"><ol class="stones" style="--done:${index / (GUIDES.length - 1)}">${stones}</ol></nav></div>
 <header class="guide-head${wide ? ' is-wide' : ''}">
 <nav aria-label="Breadcrumb"><ol class="breadcrumbs"><li><a href="./">vueleap</a></li><li><a href="./#guides">Guides</a></li><li><span aria-current="page">${short}</span></li></ol></nav>
-<div class="guide-title">${icon(iconName, 60, 'guide-icon')}<div><p class="kicker">Stop ${index + 1} of ${GUIDES.length}</p><h1>${h1}</h1></div></div>
+<div class="guide-title">${icon(iconName, 60, 'guide-icon')}<div><p class="kicker">Guide ${index + 1} of ${GUIDES.length}</p><h1>${h1}</h1></div></div>
 <p class="lede">${lede}</p>
 ${meta ? `<p class="meta">${meta}</p>` : ''}
-${toc.length ? `<nav class="in-stop" aria-label="In this stop"><span class="in-stop-label">In this stop</span>${toc.map(([id, text]) => `<a class="chip chip-sm" href="#${id}">${text}</a>`).join('')}</nav>` : ''}
+${toc.length ? `<nav class="in-stop" aria-label="On this page"><span class="in-stop-label">On this page</span>${toc.map(([id, text]) => `<a class="chip chip-sm" href="#${id}">${text}</a>`).join('')}</nav>` : ''}
 </header>
 <div class="guide-body${wide ? ' is-wide' : ''}">
 <article class="prose guide-article">
@@ -380,18 +381,12 @@ ${pager}
 }
 
 const guideCards = (exclude) =>
-  `<div class="field-guides">${GUIDES.map(([href, , label, text, iconName], i) =>
+  `<div class="field-guides">${GUIDES.map(([href, , label, text, iconName]) =>
     href === exclude
       ? ''
-      : `<a class="guide-card" href="${href}">${icon(iconName, 44)}<span class="guide-card-body"><small>Stop ${i + 1}</small><strong>${label}</strong><span>${text}</span></span><span class="guide-card-go" aria-hidden="true">${ui('arrow', 16)}</span></a>`,
+      : `<a class="guide-card" href="${href}">${icon(iconName, 44)}<span class="guide-card-body"><strong>${label}</strong><span>${text}</span></span><span class="guide-card-go" aria-hidden="true">${ui('arrow', 16)}</span></a>`,
   ).join('')}</div>`
 
-/** The guides as a zigzag trail of stepping stones (home page). */
-const guideTrail = () =>
-  `<ol class="trail">${GUIDES.map(
-    ([href, , label, text, iconName], i) =>
-      `<li class="trail-stop"><span class="trail-node" aria-hidden="true">${i + 1}</span><a class="guide-card" href="${href}">${icon(iconName, 44)}<span class="guide-card-body"><small>Stop ${i + 1}</small><strong>${label}</strong><span>${text}</span></span><span class="guide-card-go" aria-hidden="true">${ui('arrow', 16)}</span></a></li>`,
-  ).join('')}</ol>`
 
 const sevBadge = (sev) => `<span class="badge badge-sm sev-${sev}">${sev}</span>`
 
@@ -411,261 +406,75 @@ function ruleRows(rules) {
 const ruleTable = (rules) =>
   `<div class="table-wrap rules-table"><table class="table table-hover"><thead><tr><th scope="col">Rule</th><th scope="col">Severity</th><th scope="col">What changes</th><th scope="col">@vue/compat flag</th><th scope="col">Auto fix</th><th scope="col">Docs</th></tr></thead><tbody>${ruleRows(rules)}</tbody></table></div>`
 
-const howTo = (text) => `<h2>How vueleap detects it</h2>${text}<p>Run it on your project:</p>${code('bash', 'npx vueleap')}`
 
-const OUR_GUIDE = {
-  filters: 'vue-filters-removed-vue-3.html',
-  'event-emitter': 'vue-event-bus-vue-3.html',
-  'hook-events': 'vue-event-bus-vue-3.html',
-  'component-v-model': 'v-model-changes-vue-3.html',
-  'sync-modifier': 'v-model-changes-vue-3.html',
-  'global-mount': 'migrate-vue-2-to-vue-3.html',
-}
 
 const pages = []
 const fixable = RULES.filter((r) => r.fixable).length
 
-/// Home page: the migration journey.
+/// Home page: the live demo, then the migration journey.
 {
   const s = demoResult.summary
   const faqs = [
-    ['How do I migrate from Vue 2 to Vue 3?', 'Run `npx vueleap` to list every breaking change, switch your build to Vue 3 with the @vue/compat migration build using the generated flags, fix the findings (starting with `npx vueleap --fix --write`), upgrade vue-router, Vuex and UI libraries, then remove the compat flags one by one.'],
-    ['Is vueleap safe to run on my code?', 'Yes. By default it only reads files. `--fix` prints a diff and writes nothing unless you add `--write`, and it never touches files outside the project folder.'],
+    ['Is it safe to run on my code?', 'Yes. By default vueleap only reads files. `--fix` prints a diff and writes nothing unless you add `--write`, and it never touches files outside the project folder. The demo on this page runs in your browser and sends nothing anywhere.'],
+    ['What does it rewrite, and what does it leave to me?', `Pure renames are rewritten: lifecycle and directive hooks, keyCode modifiers, \`.sync\`, \`$scopedSlots\`, transition classes, \`@hook:\` events and \`productionTip\`. Everything else gets a finding with the line, an explanation and the official guide. That is ${fixable} of the ${RULES.length} checks.`],
     ['Does it support TypeScript, script setup and class components?', 'Yes. Single file components with `lang="ts"`, TSX, Vue 2.7 `<script setup>` and vue-property-decorator class components are analyzed. Pug templates are skipped with a warning.'],
-    ['Is Vue 2 still supported?', 'No. Vue 2 reached end of life on December 31, 2023 and no longer receives updates from the Vue team.'],
+    ['Can I use it from code?', 'Yes. `analyze(dir)` and `fix(dir)` work on a project, and `analyzeSource(code)` and `fixSource(code)` work on one file in memory, in Node or in the browser.'],
   ]
 
-  // Stop 2: the interactive report viewer, every finding of the sample app in static HTML.
-  const groups = s.byRule.map((g) => ({ ...g, rule: RULES_BY_ID.get(g.ruleId), findings: demoResult.findings.filter((x) => x.ruleId === g.ruleId) }))
-  const firstRule = groups[0].ruleId
-  const viewerMatch = (g) =>
-    `(sev === 'all' || sev === '${g.severity}') && (!fixOnly || ${g.fixable > 0}) && '${searchable(g.ruleId, g.title, ...g.findings.map((x) => x.file), ...(g.rule?.compatFlags ?? []))}'.includes(q.trim().toLowerCase())`
-  const ruleButtons = groups
-    .map(
-      (g) =>
-        `<li v-show="${viewerMatch(g)}"><button type="button" class="vr-item" aria-pressed="${g.ruleId === firstRule}" :aria-pressed="sel === '${g.ruleId}' ? 'true' : 'false'" @click="sel = '${g.ruleId}'"><span class="sev-dot sev-${g.severity}" aria-hidden="true"></span><span class="vr-name"><code>${g.ruleId}</code><span>${esc(g.title)}</span></span><span class="vr-count">${g.count}</span></button></li>`,
-    )
-    .join('')
-  const details = groups
-    .map((g) => {
-      const r = g.rule
-      const ours = OUR_GUIDE[g.ruleId]
-      const findings = g.findings
-        .map(
-          (x) =>
-            `<li class="vf"><div class="vf-loc">${ui('file', 14)}<code>${esc(x.file)}:${x.line}:${x.column}</code>${x.fixable ? '<span class="badge badge-xs badge-success">auto fix</span>' : ''}</div><p>${md(x.message)}</p><pre class="vf-snippet"><code>${esc(x.snippet)}</code></pre></li>`,
-        )
-        .join('')
-      return `<article class="vd" v-show="sel === '${g.ruleId}'"${g.ruleId === firstRule ? '' : ' style="display:none"'} aria-label="${esc(g.title)}">
-<header class="vd-head"><div class="vd-badges">${sevBadge(g.severity)}${g.fixable ? `<span class="badge badge-sm badge-success">${g.fixable} of ${g.count} auto fixable</span>` : '<span class="badge badge-sm">guided fix</span>'}<code class="vd-id">${g.ruleId}</code></div>
-<h3>${esc(g.title)}</h3>${r ? `<p>${md(r.description)}</p>` : ''}
-<div class="vd-meta">${r && r.compatFlags.length ? `<span class="vd-flags">${r.compatFlags.map((f) => `<span class="tag">${f}</span>`).join('')}</span>` : ''}<a href="${g.docs}" class="vd-link">Official guide ${ui('external', 14)}</a>${ours ? `<a href="${ours}" class="vd-link">vueleap guide ${ui('arrow', 14)}</a>` : ''}</div></header>
-<ol class="vd-list">${findings}</ol>
-</article>`
-    })
-    .join('\n')
-  const viewer = `<div class="rv" v-data="{ sel: '${firstRule}', sev: 'all', fixOnly: false, q: '' }">
-<div class="rv-top">
-<div class="rv-title">${icon('report', 30)}<div><b>shop-front</b><span>${s.filesScanned} files scanned by vueleap ${VERSION}</span></div></div>
-<dl class="rv-stats"><div><dt>Findings</dt><dd>${s.total}</dd></div><div><dt>Errors</dt><dd class="t-error">${s.error}</dd></div><div><dt>Warnings</dt><dd class="t-warning">${s.warning}</dd></div><div><dt>Info</dt><dd class="t-info">${s.info}</dd></div><div><dt>Auto fixable</dt><dd class="t-fix">${s.fixable}</dd></div><div><dt>Effort</dt><dd>${demoResult.effort.score} <small>${demoResult.effort.level}</small></dd></div></dl>
-</div>
-<div class="rv-filters" role="search">
-<div class="segmented segmented-sm" role="radiogroup" aria-label="Severity">${[
-    ['all', 'All'],
-    ['error', 'Errors'],
-    ['warning', 'Warnings'],
-    ['info', 'Info'],
-  ]
-    .map(([v, l]) => `<label class="segmented-item"><input type="radio" name="viewer-sev" value="${v}" v-model="sev"${v === 'all' ? ' checked' : ''}> ${l}</label>`)
+  // The live demo: real results for every example, computed now with the same
+  // code the browser runs after the first edit.
+  const liveExamples = EXAMPLES.map((ex) => ({
+    ...ex,
+    result: slim(fixSource(ex.code, { filename: ex.filename }), analyzeSource(ex.code, { filename: ex.filename }).findings),
+  }))
+  const first = liveExamples[0]
+  const firstOutMarks = first.result.changes.map((r) => ({ s: r.start, e: r.end, c: 'mk-new', t: 'Rewritten by vueleap' }))
+  const liveData = JSON.stringify({
+    examples: liveExamples.map(({ label, filename, code, result }) => ({ label, filename, code, result })),
+    icons: Object.fromEntries(['vue', 'js', 'ts', 'css'].map((k) => [k, fileIcon(k)])),
+  }).replace(/</g, '\\u003c')
+  const hopSmall = `<svg class="hop-svg" viewBox="96 40 214 190" width="64" height="57" aria-hidden="true" focusable="false">${(await fs.readFile(path.join(root, 'assets/mascot.svg'), 'utf8'))
+    .replace(/^[\s\S]*?<g transform="rotate\(9 205 130\)">/, '<g>')
+    .replace(/<\/svg>\s*$/, '')}</svg>`
+  const live = `<div class="live" id="try" data-live>
+<div class="live-top">
+<div class="live-examples" role="group" aria-label="Examples"><span class="live-label">Try an example</span>${liveExamples
+    .map((ex, i) => `<button type="button" class="live-ex" data-ex="${i}" aria-pressed="${i === 0}">${fileIcon(ex.filename)}${esc(ex.label)}</button>`)
     .join('')}</div>
-<label class="rv-check"><input type="checkbox" class="checkbox checkbox-sm" v-model="fixOnly"> Auto fixable</label>
-<label class="rv-search">${ui('search', 16)}<input class="input input-sm" type="search" v-model="q" placeholder="Filter by rule, file or flag" aria-label="Filter findings by rule, file or compat flag"></label>
+<p class="live-status" data-status data-state="idle" aria-live="polite">Edit the code to run vueleap in your browser.</p>
 </div>
-<div class="rv-body">
-<ul class="rv-rules" aria-label="Rules with findings">${ruleButtons}<li class="rv-none" v-show="![${groups.map((g) => `(${viewerMatch(g)})`).join(',')}].some(Boolean)" style="display:none">No rule matches these filters.</li></ul>
-<div class="rv-detail">${details}</div>
+<div class="live-grid">
+<div class="window live-pane is-in">
+<div class="window-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win-tab is-static"><span class="ed-ic" data-icon-in>${fileIcon(first.filename)}</span><span data-name-in>${esc(first.filename)}</span></span><span class="live-side">Vue 2</span><button type="button" class="code-copy" data-clear>Clear</button></div>
+<div class="ed"><pre class="ed-gutter" aria-hidden="true" data-gut-in>${gutter(first.code)}</pre><div class="ed-code"><pre class="ed-hl" aria-hidden="true" data-hl-in>${render(first.code, kindOf(first.filename), findingMarks(first.code, first.result.input))}</pre><textarea class="ed-input" data-input spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Vue 2 code. Edit it or paste your own.">${esc(first.code)}</textarea></div></div>
 </div>
+<div class="live-hop" data-hop aria-hidden="true"><span class="hop-arc"></span>${hopSmall}<span class="hop-pads"><i>2</i><i>3</i></span></div>
+<div class="window live-pane is-out">
+<div class="window-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win-tab is-static"><span class="ed-ic" data-icon-out>${fileIcon(first.filename)}</span><span data-name-out>${esc(first.filename)}</span></span><span class="live-side is-3">Vue 3</span><button type="button" class="code-copy" data-copy aria-label="Copy the Vue 3 code"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M4 4V1.5A1.5 1.5 0 0 1 5.5 0h7A1.5 1.5 0 0 1 14 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v2.5A1.5 1.5 0 0 1 8.5 16h-7A1.5 1.5 0 0 1 0 14.5v-9A1.5 1.5 0 0 1 1.5 4H4Zm1.5 0h3A1.5 1.5 0 0 1 10 5.5v5h2.5V1.5h-7V4Zm-4 1.5v9h7v-9h-7Z"/></svg><span>Copy</span></button></div>
+<div class="ed"><pre class="ed-gutter" aria-hidden="true" data-gut-out>${gutter(first.result.code)}</pre><div class="ed-code"><span class="ed-flash" data-flash aria-hidden="true"></span><pre class="ed-hl is-out" data-hl-out tabindex="0" aria-label="Vue 3 code written by vueleap">${render(first.result.code, kindOf(first.filename), [...firstOutMarks, ...findingMarks(first.result.code, first.result.remaining)])}</pre></div></div>
+</div>
+</div>
+<p class="live-legend" aria-hidden="true"><span><i class="lg-new"></i>Rewritten</span><span><i class="lg-left"></i>Left for you, hover for details</span></p>
+<div class="live-report" data-report aria-live="polite">${reportHtml(first.result)}</div>
+<script type="application/json" id="live-data">${liveData}</script>
 </div>`
 
-  // Stop 3: before and after for each breaking change. [rule id, label, lang, file, before, after]
-  const CHANGES = [
-    ['filters', 'Filters', 'vue', 'PriceTag.vue', `<template>
-  <p>{{ price | currency }}</p>
-</template>
-
-<script>
-export default {
-  props: ['price'],
-  filters: {
-    currency: (value) => '$' + value.toFixed(2),
-  },
-}
-</script>`, `<template>
-  <p>{{ currency(price) }}</p>
-</template>
-
-<script>
-export default {
-  props: ['price'],
-  methods: {
-    currency: (value) => '$' + value.toFixed(2),
-  },
-}
-</script>`],
-    ['keycode-modifiers', 'keyCode modifiers', 'vue', 'SearchBox.vue', `<template>
-  <input
-    @keyup.13="search"
-    @keydown.27="close"
-  >
-</template>`, `<template>
-  <input
-    @keyup.enter="search"
-    @keydown.esc="close"
-  >
-</template>`],
-    ['sync-modifier', '.sync', 'vue', 'Editor.vue', `<template>
-  <text-document :title.sync="doc.title" />
-</template>`, `<template>
-  <text-document v-model:title="doc.title" />
-</template>`],
-    ['destroy-hooks', 'Lifecycle renames', 'js', 'Chart.js', `export default {
-  beforeDestroy() {
-    window.removeEventListener('resize', this.draw)
-  },
-  destroyed() {
-    this.chart.dispose()
-  },
-}`, `export default {
-  beforeUnmount() {
-    window.removeEventListener('resize', this.draw)
-  },
-  unmounted() {
-    this.chart.dispose()
-  },
-}`],
-    ['event-emitter', 'Event bus', 'js', 'event-bus.js', `import Vue from 'vue'
-export const EventBus = new Vue()
-
-// ProductList.vue
-EventBus.$on('cart:add', this.onAdd)
-EventBus.$off('cart:add', this.onAdd)`, `import mitt from 'mitt'
-export const emitter = mitt()
-
-// ProductList.vue
-emitter.on('cart:add', this.onAdd)
-emitter.off('cart:add', this.onAdd)`],
-    ['global-mount', 'new Vue()', 'js', 'main.js', `import Vue from 'vue'
-import App from './App.vue'
-
-Vue.use(router)
-Vue.component('BaseButton', BaseButton)
-
-new Vue({
-  store,
-  render: (h) => h(App),
-}).$mount('#app')`, `import { createApp } from 'vue'
-import App from './App.vue'
-
-createApp(App)
-  .use(router)
-  .use(store)
-  .component('BaseButton', BaseButton)
-  .mount('#app')`],
-    ['component-v-model', 'v-model on components', 'js', 'BaseInput.js', `export default {
-  props: ['value'],
-  methods: {
-    onInput(event) {
-      this.$emit('input', event.target.value)
-    },
-  },
-}`, `export default {
-  props: ['modelValue'],
-  emits: ['update:modelValue'],
-  methods: {
-    onInput(event) {
-      this.$emit('update:modelValue', event.target.value)
-    },
-  },
-}`],
-    ['directive-hooks', 'Directive hooks', 'js', 'tooltip.js', `export default {
-  bind(el, binding) {
-    el.title = binding.value
-  },
-  inserted(el) { el.dataset.ready = '' },
-  componentUpdated(el, binding) {
-    el.title = binding.value
-  },
-  unbind(el) { el.title = '' },
-}`, `export default {
-  beforeMount(el, binding) {
-    el.title = binding.value
-  },
-  mounted(el) { el.dataset.ready = '' },
-  updated(el, binding) {
-    el.title = binding.value
-  },
-  unmounted(el) { el.title = '' },
-}`],
-    ['transition-classes', 'Transition classes', 'css', 'transitions.css', `.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-.slide-leave {
-  transform: none;
-}`, `.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-.slide-leave-from {
-  transform: none;
-}`],
-    ['scoped-slots', '$scopedSlots', 'js', 'FancyList.js', `export default {
-  render(h) {
-    return h('ul', this.items.map((item) =>
-      this.$scopedSlots.item({ item })
-    ))
-  },
-}`, `import { h } from 'vue'
-
-export default {
-  render() {
-    return h('ul', this.items.map((item) =>
-      this.$slots.item({ item })
-    ))
-  },
-}`],
-    ['listeners', '$listeners', 'vue', 'BaseButton.vue', `<template>
-  <button v-bind="$attrs" v-on="$listeners">
-    <slot />
-  </button>
-</template>`, `<template>
-  <!-- listeners are part of $attrs now -->
-  <button v-bind="$attrs">
-    <slot />
-  </button>
-</template>`],
-    ['set-delete', '$set and $delete', 'js', 'cart.js', `this.$set(this.cart, id, item)
-Vue.set(this.prices, id, 9.99)
-
-this.$delete(this.cart, id)`, `// Vue 3 tracks new keys on its own
-this.cart[id] = item
-this.prices[id] = 9.99
-
-delete this.cart[id]`],
-  ]
-  const changePills = CHANGES.map(
-    ([id, label], i) =>
-      `<button type="button" role="tab" class="change-pill" id="ch-tab-${i}" aria-controls="ch-panel-${i}" aria-selected="${i === 0}" :aria-selected="ch === ${i} ? 'true' : 'false'" @click="ch = ${i}"><span class="pill-dot${RULES_BY_ID.get(id).fixable ? ' is-auto' : ''}" aria-hidden="true"></span>${label}</button>`,
-  ).join('')
-  const changePanels = CHANGES.map(([id, label, lang, file, before, after], i) => {
-    const r = RULES_BY_ID.get(id)
-    const ours = OUR_GUIDE[id]
-    addEntry(`./#stop-fix`, `${label}: before and after`, 'Journey', `${id} ${r.title}`)
-    return `<div role="tabpanel" id="ch-panel-${i}" aria-labelledby="ch-tab-${i}" :hidden="ch !== ${i}"${i === 0 ? '' : ' hidden'}>
-<div class="change-meta"><div><h3>${esc(r.title)}</h3><p>${md(r.description)}</p></div><div><div class="change-badges">${r.fixable ? `<span class="badge badge-success">${ui('check', 12)} Rewritten by --fix</span>` : '<span class="badge badge-warning">Guided fix</span>'}<code>${id}</code>${r.compatFlags.map((f) => `<span class="tag">${f}</span>`).join('')}</div><p class="change-links"><a href="${r.docs}">Official guide ${ui('external', 14)}</a>${ours ? `<a href="${ours}">vueleap guide ${ui('arrow', 14)}</a>` : ''}</p></div></div>
-${compare(lang, before, after, `Vue 2: ${label}`, 'Vue 3', [file, file])}
+  // Stop 2: what the report says, as a compact chart of the sample app.
+  const topRules = s.byRule.slice(0, 6)
+  const maxCount = Math.max(...topRules.map((r) => r.count))
+  const reportCard = `<div class="report-card reveal">
+<div class="rc-top">${icon('report', 30)}<div><b>shop-front</b><span>${s.filesScanned} files scanned</span></div></div>
+<dl class="rc-stats"><div><dt>Findings</dt><dd>${s.total}</dd></div><div><dt>Errors</dt><dd class="t-error">${s.error}</dd></div><div><dt>Warnings</dt><dd class="t-warning">${s.warning}</dd></div><div><dt>Auto fixable</dt><dd class="t-fix">${s.fixable}</dd></div></dl>
+<ul class="rc-bars">${topRules
+    .map(
+      (r, i) =>
+        `<li style="--w:${(r.count / maxCount).toFixed(3)};--i:${i}"><span class="rc-name"><span class="sev-dot sev-${r.severity}" aria-hidden="true"></span><code>${r.ruleId}</code></span><span class="rc-bar"><i></i></span><span class="rc-count">${r.count}</span></li>`,
+    )
+    .join('')}</ul>
+<p class="rc-more"><a href="report-example.html">Open the full sample report ${ui('arrow', 14)}</a></p>
 </div>`
-  }).join('\n')
+
+  // Stop 3: part of the real --fix preview on the sample app.
   const fixFiles = ['src/components/ProductList.vue', 'src/directives/tooltip.js']
   const fixDiff = fixPlan
     .filter((x) => fixFiles.includes(x.file))
@@ -675,42 +484,22 @@ ${compare(lang, before, after, `Vue 2: ${label}`, 'Vue 3', [file, file])}
 
   // Stop 4: the generated compat config.
   const compatOutput = compatSnippet(demoResult.compat)
-  const [mainJs, viteJs] = (() => {
-    const snippet = /\/\/ main\.js[\s\S]*/.exec(compatOutput)?.[0] ?? ''
-    const at = snippet.indexOf('// vite.config.js')
-    return [snippet.slice(0, at).trim(), snippet.slice(at).trim()]
-  })()
-  const showcaseFiles = [
-    ['main.js', mainJs.replace(/^\/\/ main\.js.*\n/, `// Generated by npx vueleap --compat for the sample app.\n// 'vue' is aliased to '@vue/compat' in vite.config.js.\n`)],
-    ['vite.config.js', viteJs.replace(/^\/\/ vite\.config\.js\n/, '')],
-  ]
-  const showcaseTabs = showcaseFiles
-    .map(
-      ([file], index) =>
-        `<button type="button" role="tab" class="win-tab" id="show-tab-${index}" aria-controls="show-panel-${index}" aria-selected="${index === 0}" :aria-selected="file === ${index} ? 'true' : 'false'" @click="file = ${index}">${fileIcon(file)}<span>${file}</span></button>`,
-    )
-    .join('')
-  const showcasePanels = showcaseFiles
-    .map(
-      ([file, source], index) =>
-        `<div role="tabpanel" id="show-panel-${index}" aria-labelledby="show-tab-${index}" :hidden="file !== ${index}"${index === 0 ? '' : ' hidden'}>${code('js', source, file, `show-code-${index}`)}</div>`,
-    )
-    .join('')
+  const mainJs = (/\/\/ main\.js[\s\S]*?(?=\/\/ vite\.config\.js)/.exec(compatOutput)?.[0] ?? '').trim()
   const flagCount = demoResult.compat.runtime.length + demoResult.compat.compiler.length
   const flagCloud = [...demoResult.compat.runtime.map((f) => [f, 'runtime']), ...demoResult.compat.compiler.map((f) => [f, 'compiler'])]
-    .map(([f, kind]) => `<span class="flag-stone${kind === 'compiler' ? ' is-compiler' : ''}">${f}</span>`)
+    .map(([f, kind], i) => `<span class="flag-stone${kind === 'compiler' ? ' is-compiler' : ''}" style="--i:${i}">${f}</span>`)
     .join('')
 
   // Stop 5: the migration checklist, saved in localStorage by v-persist.
   const TASKS = [
-    [['scan-run', 'Run vueleap on the project', 'npx vueleap --html report.html'], ['scan-share', 'Share the HTML report with the team', ''], ['scan-deps', 'List the Vue 2 only dependencies to replace', '']],
-    [['und-read', 'Read every error group and its guide', ''], ['und-plan', 'Agree on the order: tooling, compat, fixes, ecosystem', '']],
+    [['scan-run', 'Run vueleap on the project', 'npx vueleap --html report.html'], ['scan-deps', 'List the Vue 2 only dependencies to replace', '']],
+    [['und-read', 'Read every error group and its guide', ''], ['und-plan', 'Agree on the order: tooling, compat, fixes, libraries', '']],
     [['fix-preview', 'Preview the safe fixes as a diff', 'npx vueleap --fix'], ['fix-write', 'Write them and commit', 'npx vueleap --fix --write'], ['fix-rest', 'Fix the remaining findings rule by rule', '']],
-    [['compat-tooling', 'Upgrade the build tooling, drop vue-template-compiler', ''], ['compat-install', 'Install Vue 3 and @vue/compat with the printed flags', 'npx vueleap --compat'], ['compat-boot', 'Boot the app and click through every screen', '']],
-    [['ship-eco', 'Move to vue-router 4, Pinia or Vuex 4 and Vue 3 UI libraries', ''], ['ship-flags', 'Delete compat flags as they leave the output', ''], ['ship-drop', 'Remove @vue/compat and the alias', ''], ['ship-ci', 'Gate CI so Vue 2 code never comes back', 'npx vueleap --fail-on error']],
+    [['compat-tooling', 'Upgrade the build tooling, drop vue-template-compiler', ''], ['compat-install', 'Install Vue 3 and @vue/compat with the printed flags', 'npx vueleap --compat']],
+    [['ship-eco', 'Move to vue-router 4, Pinia or Vuex 4 and Vue 3 UI libraries', ''], ['ship-drop', 'Remove the last compat flag and @vue/compat', ''], ['ship-ci', 'Gate CI so Vue 2 code never comes back', 'npx vueleap --fail-on error']],
   ]
   const taskCount = TASKS.flat().length
-  const checklist = `<div class="journey-check" v-data="{ done: [] }" v-persist="vueleap-journey">
+  const checklist = `<div class="journey-check reveal" v-data="{ done: [] }" v-persist="vueleap-journey">
 <div class="jc-head">
 <div class="jc-count"><b v-text="done.length">0</b><span>of ${taskCount} tasks done</span></div>
 <progress class="progress progress-primary jc-bar" max="${taskCount}" value="0" :value="done.length" aria-label="Migration checklist progress">0 of ${taskCount}</progress>
@@ -733,23 +522,26 @@ ${compare(lang, before, after, `Vue 2: ${label}`, 'Vue 3', [file, file])}
     ([id, label], i) =>
       `<li class="route-stop" data-stop="${i}"><a href="#stop-${id}">${padNode('route-node')}<span class="route-label"><small>${String(i + 1).padStart(2, '0')}</small><b>${label}</b></span></a></li>`,
   ).join('')
-  const stopHead = (i, title, text) => {
+  const stop = (i, title, text, visual, extra = '') => {
     const [id, label] = STOPS[i]
     addEntry(`./#stop-${id}`, `Stop ${i + 1}: ${label}`, 'Journey', title)
-    return `<header class="stop-head">${padBadge(i + 1)}<div><p class="kicker">Stop ${i + 1} of ${STOPS.length}: ${label}</p><h2 id="stop-${id}-title">${title}</h2><p class="stop-lede">${text}</p></div></header>`
+    return `<section class="stop" id="stop-${id}" aria-labelledby="stop-${id}-title">
+<div class="stop-copy reveal">${padBadge(i + 1, 52)}<p class="kicker">Stop ${i + 1}: ${label}</p><h2 id="stop-${id}-title">${title}</h2>${text}</div>
+<div class="stop-visual">${visual}</div>${extra}
+</section>`
   }
 
   pages.push({
     slug: 'index.html',
     bodyClass: 'is-home',
-    title: 'vueleap: migrate Vue 2 to Vue 3 with one command',
-    description: `Free Vue 3 migration tool. npx vueleap finds every Vue 2 to Vue 3 breaking change file by file, prints the exact @vue/compat flags you need and applies safe automatic fixes.`,
+    title: 'vueleap: upgrade Vue 2 code to Vue 3',
+    description: 'vueleap finds what breaks when a Vue 2 app moves to Vue 3, rewrites the safe changes and prints the @vue/compat flags the rest needs.',
     ld: [
       {
         '@type': 'SoftwareApplication',
         name: 'vueleap',
         alternateName: 'vue2to3',
-        description: 'Command line tool that finds every Vue 2 to Vue 3 breaking change, lists the @vue/compat flags a project needs and applies safe automatic fixes.',
+        description: 'Command line tool that finds Vue 2 code that breaks on Vue 3, applies the safe fixes and lists the @vue/compat flags a project needs.',
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'Windows, macOS, Linux',
         softwareVersion: VERSION,
@@ -764,135 +556,52 @@ ${compare(lang, before, after, `Vue 2: ${label}`, 'Vue 3', [file, file])}
       { '@type': 'WebSite', name: 'vueleap', url: SITE, inLanguage: 'en', author: AUTHOR },
       faq(faqs),
     ],
-    body: `<section class="pond-hero">
+    body: `<section class="pond-hero" aria-labelledby="hero-title">
 <div class="hero-in">
-<div class="min-w-0">
-<a class="eol-pill" href="vue-2-end-of-life.html"><span class="badge badge-solid badge-warning badge-sm">EOL</span>Vue 2 is end of life. Plan the leap ${ui('arrow', 14)}</a>
-<h1>Leap from Vue&nbsp;2 to <span class="leap-word">Vue&nbsp;3</span> in one command</h1>
-<p class="hero-lead">vueleap scans your Vue 2 project and tells you exactly what breaks in Vue 3, file by file and line by line. It rewrites the safe changes for you and prints the <code>@vue/compat</code> flags that keep the rest running.</p>
+<div class="hero-copy">
+<h1 id="hero-title">Paste Vue&nbsp;2. <span class="leap-word">Get Vue&nbsp;3.</span></h1>
+<p class="hero-lead">vueleap rewrites what is safe to rewrite and points at the rest, line by line, with the official guide for each change. Try it here, then run it on your whole project.</p>
+</div>
+<div class="hero-visual">${heroPond(await fs.readFile(path.join(root, 'assets/mascot.svg'), 'utf8'))}<span class="season-costume" aria-hidden="true"></span></div>
+</div>
+${live}
+<div class="hero-run">
+<div class="hero-run-copy"><h2>Now run it on the whole project</h2><p>One command, no config, nothing uploaded. It reads <code>.vue</code>, script and style files plus <code>package.json</code>.</p><div class="hero-cta"><a class="btn btn-primary" href="#journey">Follow the journey ${ui('arrow', 16)}</a><a class="btn btn-outline" href="migrate-vue-2-to-vue-3.html">Migration guide</a></div></div>
 ${installTabs('hero')}
-<div class="hero-cta"><a class="btn btn-primary btn-lg" href="#journey">Start the journey ${ui('arrow', 16)}</a><a class="btn btn-outline btn-lg" href="migrate-vue-2-to-vue-3.html">Migration guide</a></div>
-<div class="hero-badges"><a href="${NPM}"><img src="https://img.shields.io/npm/v/vueleap?color=42b883&amp;label=npm" alt="vueleap npm version" height="20"></a><a href="${REPO}/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/vueleap?color=42b883" alt="MIT license" height="20"></a></div>
-</div>
-<div class="hero-visual">${heroPond(await fs.readFile(path.join(root, 'assets/mascot.svg'), 'utf8'))}</div>
-</div>
-<dl class="hero-stats">
-<div><dt>breaking change checks</dt><dd>${RULES.length}</dd></div>
-<div><dt>safe automatic fixes</dt><dd>${fixable}</dd></div>
-<div><dt>config files needed</dt><dd>0</dd></div>
-<div><dt>of your code uploaded</dt><dd>0%</dd></div>
-</dl>
-</section>
-
-<section class="map" aria-labelledby="map-title">
-<div class="map-in">
-<h2 id="map-title" class="map-title">Five stops from lily pad 2 to lily pad 3</h2>
-<ol class="map-stones">${STOPS.map(([id, label, text], i) => `<li><a href="#stop-${id}" class="map-stone"><span class="map-icon">${icon(id, 44)}</span><span class="map-num">${String(i + 1).padStart(2, '0')}</span><b>${label}</b><span>${text}</span></a></li>`).join('')}</ol>
 </div>
 </section>
 
 <div class="journey" id="journey">
-<nav class="route" aria-label="Migration journey"><div class="route-in"><span class="route-line" aria-hidden="true"><span class="route-fill"></span></span><ol>${routeItems}</ol></div></nav>
+<div class="journey-head"><p class="kicker">The migration journey</p><h2>Five stops from lily pad 2 to lily pad 3</h2><p>The app keeps running at every stop. Scroll along with Hop.</p></div>
+<div class="journey-body">
+<nav class="route" aria-label="Migration journey"><div class="route-in"><span class="route-line" aria-hidden="true"><span class="route-fill"></span><span class="route-hop">${hopSmall.replace('width="64" height="57"', 'width="34" height="30"')}</span></span><ol>${routeItems}</ol></div></nav>
 <div class="stops">
 
-<section class="stop" id="stop-scan" aria-labelledby="stop-scan-title">
-${stopHead(0, 'One command reads the whole pond', 'vueleap parses templates, scripts, styles and package.json, then groups what breaks in Vue 3 by rule, with the line, the compat flag and the official guide link. It skips node_modules, dist and anything in .gitignore.')}
-${demoTerminal()}
-<ul class="stop-points">
-<li>${icon('scan', 36)}<span><b>Static and local</b>Nothing runs and nothing is uploaded. It only reads files.</span></li>
-<li>${icon('understand', 36)}<span><b>Every flavor of Vue 2</b>SFCs, JSX and TSX, TypeScript, Vue 2.7 script setup and class components.</span></li>
-<li>${icon('ci', 36)}<span><b>Made for CI too</b><code>--json</code> for tooling and <code>--fail-on error</code> to gate builds.</span></li>
-</ul>
-</section>
+${stop(0, 'Scan the whole project', `<p class="stop-lede">One command reads templates, scripts, styles and <code>package.json</code>, and groups what breaks by rule, with the file, the line and the official guide. It skips <code>node_modules</code>, <code>dist</code> and anything in <code>.gitignore</code>.</p><ul class="stop-points"><li>Only reads files. Nothing runs, nothing is uploaded.</li><li>SFCs, JSX and TSX, TypeScript, script setup and class components.</li></ul>`, demoTerminal())}
 
-<section class="stop" id="stop-understand" aria-labelledby="stop-understand-title">
-${stopHead(1, 'Understand every finding', `This is the real report for a small Vue 2 shop: ${s.total} findings in ${s.filesWithFindings} files. Pick a rule to see where it happens, why it breaks and how to fix it. Filter by severity, by what can be fixed automatically, or by file.`)}
-${viewer}
-<p class="stop-foot">Generate the same report for your project with <code>npx vueleap --html report.html</code>, or <a href="report-example.html">open the full HTML report</a> of this sample.</p>
-</section>
+${stop(1, 'Know how big the job is', `<p class="stop-lede">This is a small Vue 2 shop: ${s.total} findings in ${s.filesWithFindings} files, with an effort score of ${demoResult.effort.score} (${demoResult.effort.level}). Share the same report with your team.</p>${code('bash', 'npx vueleap --html report.html')}`, reportCard)}
 
-<section class="stop" id="stop-fix" aria-labelledby="stop-fix-title">
-${stopHead(2, 'Before and after, change by change', 'Some changes are pure renames, so vueleap rewrites them and keeps your formatting. The others get a precise finding and a guide. Pick a breaking change to compare Vue 2 and Vue 3 side by side.')}
-<div v-data="{ ch: 0 }">
-<div class="change-pills" role="tablist" aria-label="Breaking changes">${changePills}</div>
-<p class="pill-legend"><span><span class="pill-dot is-auto" aria-hidden="true"></span>Rewritten by <code>--fix</code></span><span><span class="pill-dot" aria-hidden="true"></span>Guided fix</span></p>
-${changePanels}
-</div>
-<div class="fix-preview">
-<div class="fix-copy"><h3>Preview first, then write</h3><p><code>npx vueleap --fix</code> prints a unified diff and writes nothing. Add <code>--write</code> when it looks right. On the sample app it fixes ${fixedFindings} findings in ${fixPlan.length} files. Here is part of the real preview.</p>${code('bash', 'npx vueleap --fix           # preview\nnpx vueleap --fix --write   # apply')}</div>
-${code('diff', fixDiff, 'npx vueleap --fix')}
-</div>
-</section>
+${stop(2, 'Let the safe changes write themselves', `<p class="stop-lede">Renames are rewritten in place and your formatting stays. <code>--fix</code> prints a diff first and writes nothing until you add <code>--write</code>. On the sample app it fixes ${fixedFindings} findings in ${fixPlan.length} files.</p>${code('bash', 'npx vueleap --fix           # preview\nnpx vueleap --fix --write   # apply')}`, `<div class="reveal">${code('diff', fixDiff, 'npx vueleap --fix')}</div>`)}
 
-<section class="stop" id="stop-compat" aria-labelledby="stop-compat-title">
-${stopHead(3, 'Boot on Vue 3 before the last fix', 'The @vue/compat migration build runs Vue 2 style code on Vue 3, one flag per feature. vueleap prints the smallest configuration your code needs, split into runtime and compiler flags, with everything else in Vue 3 mode.')}
-<div class="compat-grid">
-<div class="min-w-0" v-data="{ file: 0 }">
-<div class="window">
-<div class="window-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><div class="win-tabs" role="tablist" aria-label="Generated files">${showcaseTabs}</div><span class="bar-copy" v-show="file === 0">${copyButton('show-code-0', 'main.js code')}</span><span class="bar-copy" v-show="file === 1" style="display:none">${copyButton('show-code-1', 'vite.config.js code')}</span></div>
-<div class="crumb" aria-hidden="true">shop-front<span>&gt;</span><span v-text="file === 0 ? 'src > main.js' : 'vite.config.js'">src &gt; main.js</span></div>
-${showcasePanels}
-<div class="statusbar" aria-hidden="true"><span>main</span><span class="hide-sm">vueleap ${VERSION}</span><span class="right"><span class="hide-sm">Spaces: 2</span><span class="hide-sm">UTF-8</span><span>JavaScript</span></span></div>
-</div>
-</div>
-<div>
-<div class="flag-card"><p class="flag-count"><b>${flagCount}</b><span>flags for the sample app today<small>${demoResult.compat.runtime.length} runtime, ${demoResult.compat.compiler.length} compiler</small></span></p><div class="flag-cloud">${flagCloud}</div><p class="flag-goal">${icon('ship', 24)} The goal is zero. Rerun after each fix and delete the flags that disappear.</p></div>
-<ul class="compat-notes"><li><b>Vue 3 by default.</b> <code>MODE: 3</code> turns everything to Vue 3 and opts in only to what the code still uses.</li><li><b>Runtime and compiler.</b> Runtime flags go to <code>configureCompat</code>, template flags to <code>compatConfig</code>.</li><li><b>Learn the flags.</b> Read <a href="vue-compat-build-flags.html">@vue/compat build flags explained</a>.</li></ul>
-</div>
-</div>
-</section>
+${stop(3, 'Boot on Vue 3 before the last fix', `<p class="stop-lede">The <code>@vue/compat</code> migration build runs Vue 2 style code on Vue 3, one flag per feature. vueleap prints the smallest config your code needs, everything else in Vue 3 mode. Read <a href="vue-compat-build-flags.html">how the flags work</a>.</p><div class="flag-card reveal"><p class="flag-count"><b>${flagCount}</b><span>flags for the sample app today<small>${demoResult.compat.runtime.length} runtime, ${demoResult.compat.compiler.length} compiler</small></span></p><div class="flag-cloud">${flagCloud}</div><p class="flag-goal">${icon('ship', 24)} The goal is zero. Rerun after each fix and delete the flags that disappear.</p></div>`, `<div class="reveal">${code('js', `// Generated by npx vueleap --compat for the sample app.\n${mainJs.replace(/^\/\/ main\.js.*\n/, '')}`, 'main.js')}</div>`)}
 
-<section class="stop" id="stop-ship" aria-labelledby="stop-ship-title">
-${stopHead(4, 'Land on lily pad 3 and stay there', 'Tick the tasks as your team goes. The list is saved in this browser, so you can come back to it. When the last flag is gone, gate CI so Vue 2 only code never sneaks back in.')}
-${checklist}
-<div class="ship-ci">
-<div><h3>Keep it fixed in CI</h3><p><code>--fail-on error</code> exits with code 1 when an error level finding comes back. Use <code>--fail-on warning</code> to be stricter, and <code>--json</code> to feed other tools.</p></div>
-${code('yaml', `# .github/workflows/vue3.yml
-name: Vue 3 guard
-on: [push, pull_request]
-jobs:
-  vueleap:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npx vueleap --fail-on error`, 'vue3.yml')}
-</div>
-</section>
+${stop(4, 'Land on Vue 3 and stay there', `<p class="stop-lede">Tick the tasks as your team goes; the list is saved in this browser. When the last flag is gone, gate CI so Vue 2 only code never comes back.</p>${code('yaml', `# .github/workflows/vue3.yml\nname: Vue 3 guard\non: [push, pull_request]\njobs:\n  vueleap:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: npx vueleap --fail-on error`, 'vue3.yml')}`, checklist)}
 
 </div>
 </div>
-
-<section class="meta-section" aria-labelledby="meta-title">
-<div class="section-in">
-<div class="section-head"><p class="kicker">The metamorphosis</p><h2 id="meta-title">From 2 to 3, one stage at a time</h2><p>A migration is a change of form, not a rewrite. The app stays alive at every stage.</p></div>
-<ol class="meta-row">${METAMORPHOSIS.map(([name, caption, body], i) => `<li class="meta-stage">${metamorphosisArt(body, `${name}: ${caption}`)}<span class="meta-step">${i + 1}</span><b>${name}</b><span>${caption}</span></li>`).join('')}</ol>
 </div>
-</section>
 
 <section class="guides-section" id="guides" aria-labelledby="guides-title">
 <div class="section-in">
-<div class="section-head"><p class="kicker">Field guides</p><h2 id="guides-title">Learn the Vue 3 changes that matter</h2><p>Seven short, practical stops with before and after code for each breaking change. Read them in order or jump to the one you need.</p></div>
-${guideTrail()}
+<div class="section-head"><p class="kicker">Guides</p><h2 id="guides-title">Read more when you need it</h2></div>
+${guideCards('')}
 </div>
 </section>
 
 <section class="faq-section" id="faq" aria-labelledby="faq-title">
 <div class="section-in faq-grid">
-<div class="section-head"><p class="kicker">FAQ</p><h2 id="faq-title">Questions before the leap</h2><p>Still unsure? <a href="${REPO}/issues">Open an issue</a> on GitHub.</p></div>
+<div class="section-head"><p class="kicker">Questions</p><h2 id="faq-title">Before the leap</h2><p>Something else? <a href="${REPO}/issues">Open an issue</a> on GitHub.</p></div>
 ${faqHtml(faqs)}
-</div>
-</section>
-
-<section class="cta-section">
-<div class="cta-pond">
-<img src="mascot.svg" width="200" height="150" alt="">
-<h2>Ready to leap to Vue 3?</h2>
-<p>Run it now on your project. Nothing to install, nothing to configure, nothing leaves your machine.</p>
-${installTabs('end')}
-<div class="hero-cta"><a class="btn btn-primary" href="migrate-vue-2-to-vue-3.html">Read the migration guide ${ui('arrow', 16)}</a><a class="btn btn-outline" href="${NPM}">${BRAND.npm} View on npm</a></div>
 </div>
 </section>`,
   })
@@ -901,23 +610,18 @@ ${installTabs('end')}
 // Migration guide.
 {
   const slug = 'migrate-vue-2-to-vue-3.html'
-  const title = 'How to migrate Vue 2 to Vue 3: a step by step guide'
-  const description = 'Migrate a Vue 2 app to Vue 3 step by step: inventory breaking changes, run the @vue/compat migration build with the right flags, apply safe fixes and upgrade the ecosystem.'
-  const faqs = [
-    ['How long does a Vue 2 to Vue 3 migration take?', 'It depends on how much the code relies on removed APIs and on Vue 2 only libraries. Run `npx vueleap` to get an inventory and an effort score: each finding adds a weight, and fixable findings count for a tenth. UI libraries usually dominate the total.'],
-    ['Can I migrate incrementally?', 'Yes. The @vue/compat migration build runs Vue 2 style code on Vue 3, and each compat flag can be turned off once the matching code is fixed. vueleap prints the minimal set of flags your project needs.'],
-    ['Do I need to rewrite my components with the Composition API?', 'No. The Options API is fully supported in Vue 3. Migrate first, then adopt the Composition API where it helps.'],
-  ]
+  const title = 'Migration guide | vueleap'
+  const description = 'Upgrade a Vue 2 app in seven steps: measure, switch the tooling, boot on the migration build, apply the safe fixes, fix the rest and remove compat.'
   pages.push({
     slug,
     title,
     description,
-    ld: [article(slug, title, description), faq(faqs), breadcrumbs(slug, 'Migration plan')],
+    ld: [article(slug, 'Migration guide', description), breadcrumbs(slug, 'Migration guide')],
     body: `<div class="container narrow">
-<h1>How to migrate Vue 2 to Vue 3</h1>
+<h1>Migration guide</h1>
 <p class="lede">The safest way to upgrade is to measure first, run Vue 3 in compatibility mode, then remove Vue 2 behavior one piece at a time. This guide follows the official <a href="https://v3-migration.vuejs.org/migration-build">migration build</a> process and uses vueleap to know exactly what to change.</p>
 <p class="meta">Updated ${DATE}</p>
-<h2>1. Take an inventory of breaking changes</h2>
+<h2>1. Measure what breaks</h2>
 <p>Run vueleap at the root of the project. It reads <code>.vue</code>, JavaScript, TypeScript and style files plus <code>package.json</code>, skips <code>node_modules</code>, <code>dist</code> and anything in <code>.gitignore</code>, and groups findings by rule.</p>
 ${installTabs('guide')}
 <p>Add <code>--html report.html</code> to also get a shareable report, like <a href="report-example.html">this sample report</a>.</p>
@@ -929,7 +633,7 @@ ${code('bash', 'npm install vue@^3.5 @vue/compat@^3.5\nnpm uninstall vue-templat
 <p>Alias <code>vue</code> to <code>@vue/compat</code> and enable compat mode in the template compiler. vueleap prints this configuration with only the flags your project needs, running everything else in Vue 3 mode (<code>MODE: 3</code>):</p>
 ${code('js', "// vite.config.js\nimport vue from '@vitejs/plugin-vue'\n\nexport default {\n  resolve: { alias: { vue: '@vue/compat' } },\n  plugins: [\n    vue({\n      template: {\n        compilerOptions: {\n          compatConfig: { MODE: 3, COMPILER_FILTERS: true, COMPILER_V_BIND_SYNC: true },\n        },\n      },\n    }),\n  ],\n}", 'vite.config.js')}
 ${code('js', "// main.js\nimport { configureCompat } from 'vue'\n\nconfigureCompat({\n  MODE: 3,\n  GLOBAL_MOUNT: true,\n  INSTANCE_EVENT_EMITTER: true,\n  FILTERS: true,\n})")}
-<p>Read <a href="vue-compat-build-flags.html">@vue/compat build flags explained</a> for what each flag does.</p>
+<p>Read <a href="vue-compat-build-flags.html">Compat flags</a> for what each flag does.</p>
 <h2>4. Apply the safe automatic fixes</h2>
 <p>Some changes are pure renames. vueleap rewrites them while preserving formatting, and shows a diff first:</p>
 ${code('bash', 'npx vueleap --fix           # preview\nnpx vueleap --fix --write   # apply')}
@@ -937,20 +641,24 @@ ${code('bash', 'npx vueleap --fix           # preview\nnpx vueleap --fix --write
 <h2>5. Fix the rest, rule by rule</h2>
 <ol>
 <li>Replace <code>new Vue()</code> with <code>createApp()</code> and move <code>Vue.use</code>, <code>Vue.component</code>, <code>Vue.directive</code> and <code>Vue.prototype</code> to the app instance.</li>
-<li>Remove <a href="vue-filters-removed-vue-3.html">filters</a> and replace the <a href="vue-event-bus-vue-3.html">event bus</a>.</li>
+<li>Turn <a href="https://v3-migration.vuejs.org/breaking-changes/filters">filters</a> into method calls, for example <code>{{ price | currency }}</code> into <code>{{ currency(price) }}</code>, and replace an <a href="https://v3-migration.vuejs.org/breaking-changes/events-api">event bus</a> built on <code>$on</code> and <code>$off</code> with a small emitter, props and emits, or a store.</li>
 <li>Update components used with <a href="v-model-changes-vue-3.html">v-model</a> to <code>modelValue</code> and <code>update:modelValue</code>.</li>
 <li>Rewrite render functions to import <code>h</code> from <code>vue</code>, and replace <code>$listeners</code> and <code>$children</code>.</li>
 </ol>
 ${compare('js', "import Vue from 'vue'\n\nVue.use(router)\n\nnew Vue({\n  store,\n  render: (h) => h(App),\n}).$mount('#app')", "import { createApp } from 'vue'\n\ncreateApp(App)\n  .use(router)\n  .use(store)\n  .mount('#app')", 'Vue 2', 'Vue 3', ['main.js', 'main.js'])}
-<p>The <a href="vue-3-breaking-changes-checklist.html">breaking changes checklist</a> links every rule to the official guide.</p>
+<p>The <a href="vue-3-breaking-changes-checklist.html">rules reference</a> links every rule to the official guide.</p>
 <h2>6. Upgrade the ecosystem</h2>
 <p>Move to vue-router 4 and to Vuex 4 or Pinia. Replace Vue 2 only UI libraries with their Vue 3 successors, for example Vuetify 2 with Vuetify 3 and Element UI with Element Plus. vueleap lists them from <code>package.json</code> with the suggested successor.</p>
 <h2>7. Turn compat off and keep it off</h2>
 <p>Remove each compat flag once vueleap no longer reports the matching rule. When the list is empty, drop the alias and <code>@vue/compat</code>. Then keep the codebase clean in CI:</p>
 ${code('bash', 'npx vueleap --fail-on error')}
 <p>Track the whole plan with the <a href="./#stop-ship">migration checklist</a> on the home page. It remembers what you ticked.</p>
-<h2>Frequently asked questions</h2>
-${faqHtml(faqs)}
+<h2>Notes</h2>
+<ul>
+<li><strong>You can go one step at a time.</strong> On the migration build each compat flag can be turned off once the matching code is fixed, so the app keeps running the whole way.</li>
+<li><strong>The Options API stays.</strong> It is fully supported in Vue 3. Migrate first, then adopt the Composition API where it helps.</li>
+<li><strong>Libraries usually take the longest.</strong> The effort score at the end of the report weighs each finding, with fixable ones counting for a tenth.</li>
+</ul>
 </div>`,
   })
 }
@@ -958,8 +666,8 @@ ${faqHtml(faqs)}
 // Checklist.
 {
   const slug = 'vue-3-breaking-changes-checklist.html'
-  const title = `Vue 3 breaking changes checklist (${RULES.length} checks)`
-  const description = `Complete Vue 2 to Vue 3 breaking changes checklist: ${RULES.length} checks with severity, @vue/compat flag, auto fix availability and a link to the official migration guide.`
+  const title = 'Rules reference | vueleap'
+  const description = `Every check vueleap runs, ${RULES.length} in all, with its severity, compat flag, automatic fix and official guide.`
   const groups = [
     ['template', 'Templates'],
     ['script', 'Scripts and component options'],
@@ -973,9 +681,9 @@ ${faqHtml(faqs)}
     title,
     description,
     wide: true,
-    ld: [article(slug, title, description), breadcrumbs(slug, 'Breaking changes')],
+    ld: [article(slug, 'Rules reference', description), breadcrumbs(slug, 'Rules reference')],
     body: `<div class="container narrow">
-<h1>Vue 3 breaking changes checklist</h1>
+<h1>Rules reference</h1>
 <p class="lede">Every change below can break or silently change a Vue 2 app when it runs on Vue 3. vueleap checks all of them automatically and links each one to the official migration guide.</p>
 <p class="meta">${RULES.length} checks, ${fixable} with safe automatic fixes. Generated from vueleap ${VERSION}.</p>
 <div class="callout"><p class="callout-title">${icon('scan', 20)} Faster than reading</p><p>Run <code>npx vueleap</code> in your project to see which of these apply, with file and line numbers.</p></div>
@@ -1003,8 +711,8 @@ ${groups
 // Compat flags.
 {
   const slug = 'vue-compat-build-flags.html'
-  const title = '@vue/compat build flags explained: configureCompat and compatConfig'
-  const description = 'How the Vue 3 migration build works, what MODE 2 and MODE 3 mean, every @vue/compat flag vueleap can detect and how to get the minimal configureCompat for your project.'
+  const title = 'Compat flags | vueleap'
+  const description = 'How the migration build works, what MODE 2 and MODE 3 mean, and which @vue/compat flags vueleap detects.'
   const flags = new Map()
   for (const rule of RULES) for (const flag of rule.compatFlags) flags.set(flag, [...(flags.get(flag) ?? []), rule])
   const flagId = (flag) => `flag-${flag.toLowerCase().replace(/_/g, '-')}`
@@ -1018,18 +726,13 @@ ${groups
           .join('<br>')}</td></tr>`,
     )
     .join('')
-  const faqs = [
-    ['Should I use @vue/compat?', 'Use it for medium and large apps that cannot be migrated in one go: it lets the app run on Vue 3 while Vue 2 code is still being converted. It is a migration aid, so plan to remove it. Small apps are often faster to migrate directly.'],
-    ['What is the difference between configureCompat and compatConfig?', '`configureCompat()` sets runtime flags in the browser. Template flags (the `COMPILER_` ones) are applied when templates are compiled, so they go in `compilerOptions.compatConfig` of your build tool plugin.'],
-    ['What does MODE 3 mean?', 'With `MODE: 3`, every feature behaves like Vue 3 unless its flag is set to `true`. With the default `MODE: 2`, everything behaves like Vue 2 unless its flag is set to `false`.'],
-  ]
   pages.push({
     slug,
     title,
     description,
-    ld: [article(slug, title, description), faq(faqs), breadcrumbs(slug, 'Compat flags')],
+    ld: [article(slug, 'Compat flags', description), breadcrumbs(slug, 'Compat flags')],
     body: `<div class="container narrow">
-<h1>@vue/compat build flags explained</h1>
+<h1>Compat flags</h1>
 <p class="lede"><code>@vue/compat</code>, the Vue 3 migration build, is a build of Vue 3 that can emulate Vue 2 behavior feature by feature. Each feature has a flag. Knowing which flags your code needs tells you exactly what is left to migrate.</p>
 <p class="meta">Updated ${DATE}</p>
 <h2>Runtime flags and compiler flags</h2>
@@ -1049,143 +752,8 @@ ${code('bash', 'npx vueleap --compat')}
 <h2>Flags vueleap detects</h2>
 <div class="table-wrap"><table class="table table-hover"><thead><tr><th scope="col">Flag</th><th scope="col">Kind</th><th scope="col">vueleap rules</th></tr></thead><tbody>${rows}</tbody></table></div>
 <p>The full list of flags, including ones that cannot be detected statically (such as <code>ATTR_FALSE_VALUE</code>), is in the <a href="https://v3-migration.vuejs.org/migration-build#compat-configuration">official compat configuration reference</a>.</p>
-<h2>Frequently asked questions</h2>
-${faqHtml(faqs)}
-</div>`,
-  })
-}
-
-// Filters.
-{
-  const slug = 'vue-filters-removed-vue-3.html'
-  const title = 'Vue filters removed in Vue 3: how to replace them'
-  const description = 'Filters like {{ price | currency }} were removed in Vue 3. Learn how to replace local and global filters with methods, computed properties or globalProperties, and find every filter automatically.'
-  pages.push({
-    slug,
-    title,
-    description,
-    ld: [article(slug, title, description), breadcrumbs(slug, 'Filters')],
-    body: `<div class="container narrow">
-<h1>Vue filters were removed in Vue 3</h1>
-<p class="lede">The pipe syntax <code>{{ value | filter }}</code>, the <code>filters</code> component option and <code>Vue.filter()</code> do not exist in Vue 3. Filters were plain functions with special syntax, so the replacement is a plain function call.</p>
-<p class="meta">Official guide: <a href="https://v3-migration.vuejs.org/breaking-changes/filters">Filters, Vue 3 migration guide</a></p>
-<h2>Local filters</h2>
-${compare(
-  'vue',
-  `<template>
-  <p>{{ price | currency('EUR') }}</p>
-</template>
-
-<script>
-export default {
-  props: ['price'],
-  filters: {
-    currency(value, code) {
-      return new Intl.NumberFormat('en', {
-        style: 'currency', currency: code,
-      }).format(value)
-    },
-  },
-}
-</script>`,
-  `<template>
-  <p>{{ currency(price, 'EUR') }}</p>
-</template>
-
-<script>
-export default {
-  props: ['price'],
-  methods: {
-    currency(value, code) {
-      return new Intl.NumberFormat('en', {
-        style: 'currency', currency: code,
-      }).format(value)
-    },
-  },
-}
-</script>`,
-  'Vue 2', 'Vue 3', ['PriceTag.vue', 'PriceTag.vue'],
-)}
-<p>Note the argument order: the filtered value becomes the first argument. When the result only depends on reactive state, a computed property is even better.</p>
-<h2>Global filters</h2>
-${compare(
-  'js',
-  `Vue.filter('currency', (value) =>
-  '$' + Number(value).toFixed(2))
-
-// template: {{ total | currency }}`,
-  `const app = createApp(App)
-app.config.globalProperties.$filters = {
-  currency: (value) => '$' + Number(value).toFixed(2),
-}
-
-// template: {{ $filters.currency(total) }}`,
-  'Vue 2', 'Vue 3', ['main.js', 'main.js'],
-)}
-<h2>Chained filters</h2>
-<p><code>{{ name | trim | capitalize }}</code> becomes <code>{{ capitalize(trim(name)) }}</code>. Read it inside out.</p>
-${howTo(`<p>vueleap reports every filter with its name and position: in interpolations and <code>v-bind</code> expressions (using the same scanning rules as the Vue 2 compiler, so <code>a || b</code> and pipes inside strings or regular expressions are ignored), in the <code>filters</code> option and in <code>Vue.filter()</code> calls. The matching compat flags are <code>COMPILER_FILTERS</code> (templates) and <code>FILTERS</code> (runtime). Filters are not rewritten automatically because global registration and argument order need a human decision.</p>`)}
-</div>`,
-  })
-}
-
-// Event bus.
-{
-  const slug = 'vue-event-bus-vue-3.html'
-  const title = 'Event bus in Vue 3: replacing $on, $off and $once'
-  const description = 'new Vue() event buses stop working in Vue 3 because $on, $off and $once were removed. Replace them with mitt, props and emits, provide/inject or Pinia, and find every usage automatically.'
-  pages.push({
-    slug,
-    title,
-    description,
-    ld: [article(slug, title, description), breadcrumbs(slug, 'Event bus')],
-    body: `<div class="container narrow">
-<h1>The event bus pattern in Vue 3</h1>
-<p class="lede">In Vue 2 any instance was an event emitter, so <code>export const EventBus = new Vue()</code> was a popular way to talk between components. Vue 3 removed <code>$on</code>, <code>$off</code> and <code>$once</code>; only <code>$emit</code> remains, for parent listeners.</p>
-<p class="meta">Official guide: <a href="https://v3-migration.vuejs.org/breaking-changes/events-api">Events API, Vue 3 migration guide</a></p>
-<h2>Replace the bus with a tiny emitter</h2>
-<p>The quickest migration keeps the pattern and swaps the implementation for a small library such as <a href="https://github.com/developit/mitt">mitt</a>:</p>
-${compare(
-  'js',
-  `// event-bus.js
-import Vue from 'vue'
-export const EventBus = new Vue()
-
-// ProductList.vue
-mounted() {
-  EventBus.$on('cart:add', this.onAdd)
-},
-beforeDestroy() {
-  EventBus.$off('cart:add', this.onAdd)
-},
-
-// AddButton.vue
-EventBus.$emit('cart:add', product)`,
-  `// event-bus.js
-import mitt from 'mitt'
-export const emitter = mitt()
-
-// ProductList.vue
-mounted() {
-  emitter.on('cart:add', this.onAdd)
-},
-beforeUnmount() {
-  emitter.off('cart:add', this.onAdd)
-},
-
-// AddButton.vue
-emitter.emit('cart:add', product)`,
-  'Vue 2', 'Vue 3', ['event-bus.js', 'event-bus.js'],
-)}
-<h2>Better long term options</h2>
-<ul>
-<li><strong>Props and emits</strong> for parent and child communication.</li>
-<li><strong>provide and inject</strong> for a subtree that shares state.</li>
-<li><strong>Pinia</strong> (or Vuex 4) for application state that many components read and change.</li>
-</ul>
-<h2>Lifecycle hook events</h2>
-<p><code>this.$once('hook:beforeDestroy', fn)</code> also relied on the instance emitter. In Vue 3, use the lifecycle hook directly, or <code>@vue:mounted</code> style listeners on child components in templates.</p>
-${howTo(`<p>vueleap reports each <code>$on</code>, <code>$off</code> and <code>$once</code> call (rule <code>event-emitter</code>, compat flag <code>INSTANCE_EVENT_EMITTER</code>), the <code>new Vue()</code> that creates the bus (rule <code>global-mount</code>), and <code>hook:</code> events (rule <code>hook-events</code>). Template <code>@hook:mounted</code> listeners are rewritten to <code>@vue:mounted</code> by <code>--fix</code>.</p>`)}
+<h2>When to use the migration build</h2>
+<p>It pays off for medium and large apps that cannot move in one go: the app runs on Vue 3 while Vue 2 code is still being converted. It is a migration aid, so plan to remove it. Small apps are often quicker to migrate directly.</p>
 </div>`,
   })
 }
@@ -1193,15 +761,15 @@ ${howTo(`<p>vueleap reports each <code>$on</code>, <code>$off</code> and <code>$
 // v-model.
 {
   const slug = 'v-model-changes-vue-3.html'
-  const title = 'v-model changes in Vue 3: modelValue, update:modelValue and .sync'
-  const description = 'In Vue 3, v-model on components uses the modelValue prop and update:modelValue event, the model option is gone and .sync becomes v-model:prop. See before and after code and find affected components.'
+  const title = 'v-model on components | vueleap'
+  const description = 'On components, v-model now uses the modelValue prop and the update:modelValue event, and .sync becomes v-model with an argument.'
   pages.push({
     slug,
     title,
     description,
-    ld: [article(slug, title, description), breadcrumbs(slug, 'v-model')],
+    ld: [article(slug, 'v-model on components', description), breadcrumbs(slug, 'v-model')],
     body: `<div class="container narrow">
-<h1>v-model changes in Vue 3</h1>
+<h1>v-model on components</h1>
 <p class="lede">On custom components, <code>v-model</code> now passes a <code>modelValue</code> prop and listens to <code>update:modelValue</code>. The <code>value</code> prop and <code>input</code> event convention, the <code>model</code> option and the <code>.sync</code> modifier are gone. Native inputs are not affected.</p>
 <p class="meta">Official guide: <a href="https://v3-migration.vuejs.org/breaking-changes/v-model">v-model, Vue 3 migration guide</a></p>
 <h2>Components using value and input</h2>
@@ -1256,49 +824,8 @@ ${compare(
   ['Editor.vue', 'Editor.vue'],
 )}
 <p>The child keeps emitting <code>update:title</code>, so this rewrite is safe, and <code>npx vueleap --fix</code> applies it for you. Components can now accept several <code>v-model</code> bindings, one per argument.</p>
-${howTo(`<p>vueleap reports components that declare a <code>value</code> prop and emit <code>input</code>, components with a <code>model</code> option (rule <code>component-v-model</code>, compat flag <code>COMPONENT_V_MODEL</code>) and every <code>.sync</code> modifier (rule <code>sync-modifier</code>, compat flag <code>COMPILER_V_BIND_SYNC</code>), which it can rewrite automatically.</p>`)}
-</div>`,
-  })
-}
-
-// End of life.
-{
-  const slug = 'vue-2-end-of-life.html'
-  const title = 'Vue 2 end of life: what it means and how to migrate to Vue 3'
-  const description = 'Vue 2 reached end of life on December 31, 2023. What end of support means for your app, the risks of staying, and a practical plan to migrate to Vue 3.'
-  const faqs = [
-    ['When did Vue 2 reach end of life?', 'Vue 2 reached end of life on December 31, 2023. Vue 2.7 was its last minor release.'],
-    ['Is Vue 2 still supported?', 'Not by the Vue core team: Vue 2 no longer receives updates, including security and browser compatibility fixes. The official end of life page points teams that need continued fixes to a commercial third party offer (HeroDevs Never-Ending Support), but the ecosystem has moved to Vue 3.'],
-    ['Will my Vue 2 app stop working?', 'No. Published versions keep working. The risk grows over time: unpatched vulnerabilities, browsers and build tools moving on, and libraries dropping Vue 2 support.'],
-    ['What is the fastest way to know how much work the upgrade is?', 'Run `npx vueleap` in the project. It lists every Vue 3 breaking change with file and line, the Vue 2 only dependencies, and an effort score.'],
-  ]
-  pages.push({
-    slug,
-    title,
-    description,
-    ld: [article(slug, title, description), faq(faqs), breadcrumbs(slug, 'End of life')],
-    body: `<div class="container narrow">
-<h1>Vue 2 end of life</h1>
-<p class="lede">Vue 2 reached end of life on <strong>December 31, 2023</strong>. Apps keep running, but they no longer get fixes from the Vue team, and more of the ecosystem only supports Vue 3 every month.</p>
-<p class="meta">Official announcement: <a href="https://v2.vuejs.org/lts/">Vue 2 end of life</a></p>
-<h2>What end of life means in practice</h2>
-<ul>
-<li><strong>No security fixes</strong> for Vue 2 itself from the core team.</li>
-<li><strong>Libraries move on</strong>: vue-router 4, Vuex 4, Pinia, Vuetify 3, Element Plus and most new libraries target Vue 3 only.</li>
-<li><strong>Tooling moves on</strong>: modern build tools, test utilities and IDE support focus on Vue 3.</li>
-<li><strong>Hiring and knowledge</strong>: documentation, examples and new developers use Vue 3.</li>
-</ul>
-<h2>A low risk plan to migrate</h2>
-<ol>
-<li>Measure: <code>npx vueleap --html report.html</code> lists every breaking change and Vue 2 only dependency.</li>
-<li>Run on Vue 3 early with the <a href="vue-compat-build-flags.html">@vue/compat migration build</a>, using the flags vueleap prints.</li>
-<li>Apply safe fixes with <code>npx vueleap --fix --write</code>, then fix the remaining findings rule by rule.</li>
-<li>Upgrade router, store and UI libraries.</li>
-<li>Remove compat flags and gate CI with <code>npx vueleap --fail-on error</code>.</li>
-</ol>
-<p>The <a href="migrate-vue-2-to-vue-3.html">step by step migration guide</a> covers each step in detail, and the <a href="./#journey">migration journey</a> has a checklist you can tick as you go.</p>
-<h2>Frequently asked questions</h2>
-${faqHtml(faqs)}
+<h2>How vueleap finds them</h2>
+${`<p>vueleap reports components that declare a <code>value</code> prop and emit <code>input</code>, components with a <code>model</code> option (rule <code>component-v-model</code>, compat flag <code>COMPONENT_V_MODEL</code>) and every <code>.sync</code> modifier (rule <code>sync-modifier</code>, compat flag <code>COMPILER_V_BIND_SYNC</code>), which it can rewrite automatically.</p>`}
 </div>`,
   })
 }
@@ -1307,8 +834,9 @@ ${faqHtml(faqs)}
 // put the pages and journey stops at the top of the index.
 const rendered = pages.map((page) => ({ ...page, html: page.slug === 'index.html' ? page.body : guidePage(page.slug, page.body, { wide: page.wide }) }))
 searchEntries.unshift(
-  { href: './', title: 'vueleap: the migration journey', kind: 'Home', text: 'install npx scan understand fix compat ship checklist' },
-  ...GUIDES.map(([href, short, label, text]) => ({ href, title: label, kind: `Stop: ${short}`, text })),
+  { href: './#try', title: 'Try it in the browser', kind: 'Home', text: 'live demo paste convert component example' },
+  { href: './#journey', title: 'The migration journey', kind: 'Home', text: 'install npx scan understand fix compat ship checklist' },
+  ...GUIDES.map(([href, , label, text]) => ({ href, title: label, kind: 'Guide', text })),
   { href: 'report-example.html', title: 'Sample HTML report', kind: 'Page', text: 'report shop-front findings' },
 )
 for (const page of rendered) {
@@ -1320,10 +848,10 @@ await fs.writeFile(
   path.join(docs, '404.html'),
   layout({
     slug: '404.html',
-        title: 'Page not found | vueleap',
-    description: 'This page does not exist. Find the Vue 2 to Vue 3 migration guides and the vueleap documentation here.',
+    title: 'Page not found | vueleap',
+    description: 'This page does not exist.',
     ld: { '@type': 'WebPage', name: 'Page not found' },
-    body: `<section class="lost"><div class="section-in">${splashArt()}<p class="kicker">404</p><h1>Hop missed this lily pad</h1><p class="lost-lead">The page you are looking for leapt away or never existed. These stops are still above water:</p>${guideCards('')}<p class="lost-cta"><a class="btn btn-primary" href="./">${ui('back', 16)} Back to the pond</a></p></div></section>`,
+    body: `<section class="lost"><div class="section-in">${splashArt()}<p class="kicker">404</p><h1>Hop missed this lily pad</h1><p class="lost-lead">The page you are looking for leapt away or never existed. These guides are still above water:</p>${guideCards('')}<p class="lost-cta"><a class="btn btn-primary" href="./">${ui('back', 16)} Back to the pond</a></p></div></section>`,
   })
     .replace('<link rel="canonical" href="https://kwy404.github.io/vueleap/404.html">\n', '<meta name="robots" content="noindex">\n')
     // GitHub Pages serves 404.html from any path, so its links must be absolute.

@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://kwy404.github.io/vueleap/</loc><lastmod>2026-10-13</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://kwy404.github.io/vueleap/migrate-vue-2-to-vue-3.html</loc><lastmod>2026-10-13</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kwy404.github.io/vueleap/vue-3-breaking-changes-checklist.html</loc><lastmod>2026-10-13</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kwy404.github.io/vueleap/vue-compat-build-flags.html</loc><lastmod>2026-10-13</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kwy404.github.io/vueleap/vue-filters-removed-vue-3.html</loc><lastmod>2026-10-13</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kwy404.github.io/vueleap/vue-event-bus-vue-3.html</loc><lastmod>2026-10-13</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kwy404.github.io/vueleap/v-model-changes-vue-3.html</loc><lastmod>2026-10-13</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kwy404.github.io/vueleap/vue-2-end-of-life.html</loc><lastmod>2026-10-13</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kwy404.github.io/vueleap/report-example.html</loc><lastmod>2026-10-13</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kwy404.github.io/vueleap/</loc><lastmod>2026-10-15</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://kwy404.github.io/vueleap/migrate-vue-2-to-vue-3.html</loc><lastmod>2026-10-15</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kwy404.github.io/vueleap/vue-3-breaking-changes-checklist.html</loc><lastmod>2026-10-15</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kwy404.github.io/vueleap/vue-compat-build-flags.html</loc><lastmod>2026-10-15</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kwy404.github.io/vueleap/v-model-changes-vue-3.html</loc><lastmod>2026-10-15</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kwy404.github.io/vueleap/report-example.html</loc><lastmod>2026-10-15</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>

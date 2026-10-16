@@ -176,7 +176,6 @@ h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; }
 .pond-hero { position: relative; padding: 44px 16px 64px; background: radial-gradient(60% 46% at 90% 0%, var(--leaf-soft), transparent 70%), radial-gradient(50% 40% at 0% 100%, var(--water-soft), transparent 70%); border-bottom: 1px solid var(--hair); }
 .hero-in { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 330px); gap: 32px; align-items: center; }
 .hero-copy, .hero-run-copy { min-width: 0; }
-.season-costume { display: none; }
 .pond-hero h1 { margin: 0 0 14px; font-size: clamp(2.4rem, 5.4vw, 4.3rem); line-height: 1.02; font-weight: 850; letter-spacing: -.035em; animation: rise .7s cubic-bezier(.2, .8, .2, 1) both; }
 .leap-word { position: relative; display: inline-block; color: var(--leaf-ink); white-space: nowrap; }
 .leap-word::after { content: ""; position: absolute; left: -2%; right: -2%; bottom: .04em; height: .16em; border-radius: 99px; background: var(--leaf-tint); z-index: -1; transform-origin: left; animation: grow .8s .35s cubic-bezier(.2, .8, .2, 1) both; }
@@ -547,3 +546,36 @@ h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; }
 .stop-visual .window pre.shiki { max-height: 540px; overflow: auto; }
 .li-doc { color: var(--leaf-ink); }
 .ed-ic { display: inline-flex; }
+
+/* Seasons: seasons.js sets data-season on special dates and seasons/seasons.css
+   holds the art for each one. Decorations are aria-hidden and never block clicks. */
+.season-mascot, .season-accent, .season-icons { display: none; }
+[data-season] .pond-hero { padding-top: 76px; }
+[data-season] .hero-hop { opacity: 0; }
+[data-season] .season-mascot { display: block; position: absolute; left: 15.5%; top: 17.8%; width: 69%; height: 74.5%; background: center / contain no-repeat; transform-origin: 50% 90%; animation: breathe 4s ease-in-out infinite; pointer-events: none; }
+[data-season] .season-accent { display: block; position: absolute; left: 0; right: 0; top: 0; height: 64px; background: top center / auto 64px repeat-x; pointer-events: none; animation: sway 6s ease-in-out infinite; transform-origin: top; }
+[data-season] .season-icons { display: block; position: absolute; inset: 0; pointer-events: none; }
+.season-icons i { position: absolute; width: 34px; height: 34px; background: center / contain no-repeat; animation: float 5s ease-in-out infinite; }
+.season-icons i:nth-child(1) { left: 0; top: 6%; }
+.season-icons i:nth-child(2) { right: 2%; top: 30%; animation-delay: -1.7s; }
+.season-icons i:nth-child(3) { left: 6%; bottom: 18%; width: 28px; height: 28px; animation-delay: -3.2s; }
+[data-season] .leap-word::after { background: color-mix(in oklab, var(--season) 24%, transparent); }
+@keyframes float { 50% { transform: translateY(-7px) rotate(-5deg); } }
+@keyframes sway { 50% { transform: scaleY(1.04); } }
+.season-chip { position: fixed; left: 16px; bottom: 16px; z-index: 60; display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 8px; border: 1px solid var(--border); border-radius: 99px; background: color-mix(in oklab, var(--surface) 92%, transparent); backdrop-filter: blur(10px); box-shadow: var(--m-shadow-md); color: var(--foreground); font: 600 .8rem var(--font-sans); animation: rise .5s .6s ease both; }
+.season-chip-icon { width: 22px; height: 22px; flex: none; background: center / contain no-repeat; }
+.season-chip.is-off { color: var(--muted-foreground); }
+.season-chip.is-off .season-chip-icon { filter: grayscale(1); opacity: .7; }
+.season-switch { position: relative; flex: none; width: 34px; height: 20px; padding: 0; border: 0; border-radius: 99px; background: var(--muted); box-shadow: inset 0 0 0 1px var(--border); cursor: pointer; transition: background-color .2s; }
+.season-switch::after { content: ""; position: absolute; left: 3px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--background); box-shadow: 0 1px 2px oklch(0 0 0 / .35); transition: transform .2s cubic-bezier(.3, 1.4, .5, 1); }
+.season-switch[aria-checked="true"] { background: var(--season, var(--leaf)); }
+.season-switch[aria-checked="true"]::after { transform: translateX(14px); }
+.season-switch:focus-visible { outline: 2px solid var(--leaf-ink); outline-offset: 2px; }
+.season-fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 40; pointer-events: none; opacity: .8; }
+@media (max-width: 639.98px) {
+  [data-season] .hero-visual { display: block; width: min(240px, 70%); margin: 4px auto 0; }
+  [data-season] .pond-hero { padding-top: 64px; }
+  .season-icons i { width: 26px; height: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { .season-mascot, .season-accent, .season-icons i, .season-chip { animation: none !important; } }
+@media print { .season-chip, .season-fx, .season-accent { display: none !important; } }

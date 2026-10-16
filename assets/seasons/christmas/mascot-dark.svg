@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 400 310" width="400" height="310" role="img" aria-label="Hop in a striped scarf with snow on the lily pads, for Christmas"><title>Hop in a striped scarf with snow on the lily pads, for Christmas</title>
+
+<path d="M100 214 C 140 52, 262 52, 302 214" fill="none" stroke="#42b883" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 14" opacity=".6"/>
+  <path d="M96 246 L161.2 235.3 A72 25 0 1 0 167.7 243.8 Z" fill="#2c8c63"/>
+  <path d="M304 246 L238.8 235.3 A72 25 0 1 1 232.3 243.8 Z" fill="#2c8c63"/>
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="800" font-size="28" fill="#ffffff" text-anchor="middle">
+    <text x="92" y="256">2</text>
+    <text x="308" y="256">3</text>
+  </g>
+  <g transform="rotate(9 205 130)">
+  <g stroke-linecap="round" fill="none">
+    <path d="M170 140 Q 142 148 120 176" stroke="#2c8c63" stroke-width="14"/>
+    <path d="M226 146 Q 244 158 250 176" stroke="#2c8c63" stroke-width="11"/>
+    <path d="M178 150 Q 152 170 136 198" stroke="#42b883" stroke-width="16"/>
+    <path d="M238 138 Q 260 144 272 164" stroke="#42b883" stroke-width="12"/>
+  </g>
+  <g fill="#2c8c63">
+    <circle cx="113" cy="178" r="6"/><circle cx="119" cy="186" r="6"/><circle cx="110" cy="170" r="5"/>
+    <circle cx="248" cy="184" r="5"/><circle cx="256" cy="181" r="5"/>
+  </g>
+  <g fill="#42b883">
+    <circle cx="128" cy="202" r="7"/><circle cx="137" cy="208" r="7"/><circle cx="125" cy="193" r="6"/>
+    <circle cx="271" cy="172" r="6"/><circle cx="280" cy="167" r="6"/>
+    <ellipse cx="205" cy="122" rx="60" ry="44"/>
+    <circle cx="178" cy="82" r="22"/>
+    <circle cx="232" cy="82" r="22"/>
+  </g>
+  <ellipse cx="205" cy="138" rx="36" ry="22" fill="#ffffff" opacity=".28"/>
+  <circle cx="178" cy="82" r="14" fill="#ffffff"/>
+  <circle cx="232" cy="82" r="14" fill="#ffffff"/>
+  <circle cx="182" cy="83" r="7" fill="#213547"/>
+  <circle cx="236" cy="83" r="7" fill="#213547"/>
+  <circle cx="184.5" cy="80" r="2.4" fill="#ffffff"/>
+  <circle cx="238.5" cy="80" r="2.4" fill="#ffffff"/>
+  <path d="M184 116 Q 205 134 226 116" fill="none" stroke="#213547" stroke-width="4.5" stroke-linecap="round"/>
+  </g>
+<g fill="#f4f8fc" stroke="#f4f8fc" stroke-width="1.5">
+<path d="M36 234Q96 212 156 232Q96 224 36 234Z"/><path d="M246 232Q306 212 368 234Q306 224 246 232Z"/>
+</g><g transform="rotate(9 205 130)"><path d="M150 99Q205 120 262 99L264 113Q205 136 148 113Z" fill="#c0392b"/>
+<path d="M166 106l-4 14M190 112l-2 14M216 113l1 14M240 108l3 14" stroke="#ffffff" stroke-width="4" opacity=".9"/>
+<path d="M172 112l-10 44l16 3l8 -44z" fill="#c0392b"/><path d="M168 130l15 3M165 144l15 3" stroke="#ffffff" stroke-width="4"/>
+<path d="M162 156l-3 8M168 157l-2 8M174 158l-1 8" stroke="#c0392b" stroke-width="2.4" stroke-linecap="round"/></g><g fill="#f4f8fc" stroke="#f4f8fc" stroke-width="1"><circle cx="60" cy="60" r="4"/><circle cx="110" cy="30" r="3"/><circle cx="330" cy="50" r="4"/><circle cx="368" cy="110" r="3"/><circle cx="40" cy="140" r="3"/><circle cx="290" cy="20" r="2.6"/></g>
+</svg>

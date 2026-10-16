@@ -11,4 +11,14 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
+  {
+    // Classic browser scripts of the docs site (seasonal themes).
+    files: ['assets/seasons/*.js'],
+    languageOptions: {
+      sourceType: 'script',
+      globals: Object.fromEntries(
+        ['window', 'document', 'navigator', 'globalThis', 'performance', 'requestAnimationFrame', 'cancelAnimationFrame', 'MutationObserver', 'CustomEvent'].map((name) => [name, 'readonly']),
+      ),
+    },
+  },
 )

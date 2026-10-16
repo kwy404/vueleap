@@ -55,6 +55,10 @@ const textFiles = [
   path.join(docs, 'live/demo.js'),
   path.join(root, 'scripts/live/examples.mjs'),
   path.join(root, 'scripts/build-live.mjs'),
+  path.join(root, 'scripts/season-art.mjs'),
+  path.join(root, 'assets/seasons/seasons.js'),
+  path.join(root, 'assets/seasons/fx.js'),
+  path.join(root, 'assets/seasons/seasons.css'),
   ...['build-docs.mjs', 'highlight-docs.mjs', 'site-art.mjs', 'frame-parts.mjs', 'check-docs.mjs', 'render-assets.mjs'].map((f) => path.join(root, 'scripts', f)),
 ]
 for (const file of textFiles) {

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 400 310" width="400" height="310" role="img" aria-label="Hop in a straw hat next to a small bonfire, for Festa Junina"><title>Hop in a straw hat next to a small bonfire, for Festa Junina</title>
+
+<path d="M100 214 C 140 52, 262 52, 302 214" fill="none" stroke="#42b883" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 14" opacity=".6"/>
+  <path d="M96 246 L161.2 235.3 A72 25 0 1 0 167.7 243.8 Z" fill="#2c8c63"/>
+  <path d="M304 246 L238.8 235.3 A72 25 0 1 1 232.3 243.8 Z" fill="#2c8c63"/>
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="800" font-size="28" fill="#ffffff" text-anchor="middle">
+    <text x="92" y="256">2</text>
+    <text x="308" y="256">3</text>
+  </g>
+  <g transform="rotate(9 205 130)">
+  <g stroke-linecap="round" fill="none">
+    <path d="M170 140 Q 142 148 120 176" stroke="#2c8c63" stroke-width="14"/>
+    <path d="M226 146 Q 244 158 250 176" stroke="#2c8c63" stroke-width="11"/>
+    <path d="M178 150 Q 152 170 136 198" stroke="#42b883" stroke-width="16"/>
+    <path d="M238 138 Q 260 144 272 164" stroke="#42b883" stroke-width="12"/>
+  </g>
+  <g fill="#2c8c63">
+    <circle cx="113" cy="178" r="6"/><circle cx="119" cy="186" r="6"/><circle cx="110" cy="170" r="5"/>
+    <circle cx="248" cy="184" r="5"/><circle cx="256" cy="181" r="5"/>
+  </g>
+  <g fill="#42b883">
+    <circle cx="128" cy="202" r="7"/><circle cx="137" cy="208" r="7"/><circle cx="125" cy="193" r="6"/>
+    <circle cx="271" cy="172" r="6"/><circle cx="280" cy="167" r="6"/>
+    <ellipse cx="205" cy="122" rx="60" ry="44"/>
+    <circle cx="178" cy="82" r="22"/>
+    <circle cx="232" cy="82" r="22"/>
+  </g>
+  <ellipse cx="205" cy="138" rx="36" ry="22" fill="#ffffff" opacity=".28"/>
+  <circle cx="178" cy="82" r="14" fill="#ffffff"/>
+  <circle cx="232" cy="82" r="14" fill="#ffffff"/>
+  <circle cx="182" cy="83" r="7" fill="#213547"/>
+  <circle cx="236" cy="83" r="7" fill="#213547"/>
+  <circle cx="184.5" cy="80" r="2.4" fill="#ffffff"/>
+  <circle cx="238.5" cy="80" r="2.4" fill="#ffffff"/>
+  <path d="M184 116 Q 205 134 226 116" fill="none" stroke="#213547" stroke-width="4.5" stroke-linecap="round"/>
+  </g>
+<g transform="rotate(9 205 130)"><ellipse cx="205" cy="62" rx="76" ry="14" fill="#e0b25c" stroke="#a87b2c" stroke-width="2"/>
+<path d="M174 60C175 34 235 34 236 60Z" fill="#e9c46a" stroke="#a87b2c" stroke-width="2" stroke-linejoin="round"/>
+<path d="M175 52Q205 60 235 52L236 59Q205 67 174 59Z" fill="#d64545"/>
+<path d="M140 64q65 18 130 0" fill="none" stroke="#a87b2c" stroke-width="1.6" stroke-dasharray="4 5"/></g><g transform="translate(200 266) scale(.8)">
+<path d="M-26 12L22 -2M-22 -2L26 12" stroke="#7a4a24" stroke-width="7" stroke-linecap="round"/>
+<path d="M0 6C-18 0 -14 -20 -4 -34C-4 -22 4 -22 6 -30C16 -18 18 0 0 6Z" fill="#ff7b39"/>
+<path d="M0 4C-8 0 -6 -10 0 -18C2 -10 8 -8 6 -2C6 2 4 4 0 4Z" fill="#ffd166"/>
+<circle cx="-12" cy="-40" r="2" fill="#ffb347"/><circle cx="10" cy="-48" r="1.6" fill="#ffd166"/><circle cx="-2" cy="-56" r="1.4" fill="#ffd166"/>
+</g>
+</svg>

@@ -11,6 +11,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { transformWithEsbuild } from 'vite'
 import { analyze, analyzeSource, compatSnippet, fixSource, formatPretty, planFixes, RULES, VERSION } from '../dist/index.js'
 import { findingMarks, gutter, kindOf, render, reportHtml, slim } from '../docs/live/view.js'
 import { copyButton, fileIcon } from './frame-parts.mjs'
@@ -322,6 +323,8 @@ function layout({ slug, title, description, body, ld, bodyClass = '' }) {
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="${MONSOON_CSS}">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="seasons/seasons.css">
+<script src="seasons.js"></script>
 <script src="${VOODOO_JS}" defer></script>
 <script src="site.js" defer></script>
 ${slug === 'index.html' ? '<script type="module" src="live/demo.js"></script>\n' : ''}${jsonLd({ '@context': 'https://schema.org', ...(Array.isArray(ld) ? { '@graph': ld } : ld) })}
@@ -557,12 +560,13 @@ const fixable = RULES.filter((r) => r.fixable).length
       faq(faqs),
     ],
     body: `<section class="pond-hero" aria-labelledby="hero-title">
+<span class="season-accent" aria-hidden="true"></span>
 <div class="hero-in">
 <div class="hero-copy">
 <h1 id="hero-title">Paste Vue&nbsp;2. <span class="leap-word">Get Vue&nbsp;3.</span></h1>
 <p class="hero-lead">vueleap rewrites what is safe to rewrite and points at the rest, line by line, with the official guide for each change. Try it here, then run it on your whole project.</p>
 </div>
-<div class="hero-visual">${heroPond(await fs.readFile(path.join(root, 'assets/mascot.svg'), 'utf8'))}<span class="season-costume" aria-hidden="true"></span></div>
+<div class="hero-visual">${heroPond(await fs.readFile(path.join(root, 'assets/mascot.svg'), 'utf8'))}<span class="season-mascot" aria-hidden="true"></span><span class="season-icons" aria-hidden="true"><i></i><i></i><i></i></span></div>
 </div>
 ${live}
 <div class="hero-run">
@@ -866,6 +870,18 @@ for (const file of await fs.readdir(path.join(root, 'assets/icons'))) {
 for (const file of ['mascot.svg', 'favicon.svg', 'demo.svg', 'report.png']) {
   await fs.copyFile(path.join(root, 'assets', file), path.join(docs, file))
 }
+// Seasonal themes: the art as drawn by scripts/season-art.mjs, the scripts minified.
+const seasonsSrc = path.join(root, 'assets/seasons')
+await fs.rm(path.join(docs, 'seasons'), { recursive: true, force: true })
+await fs.mkdir(path.join(docs, 'seasons'), { recursive: true })
+for (const entry of await fs.readdir(seasonsSrc, { withFileTypes: true })) {
+  if (entry.isDirectory()) await fs.cp(path.join(seasonsSrc, entry.name), path.join(docs, 'seasons', entry.name), { recursive: true })
+}
+await fs.copyFile(path.join(seasonsSrc, 'seasons.css'), path.join(docs, 'seasons/seasons.css'))
+const minify = async (file) => (await transformWithEsbuild(await fs.readFile(path.join(seasonsSrc, file), 'utf8'), file, { minify: true, target: 'es2015', loader: 'js' })).code
+await fs.writeFile(path.join(docs, 'seasons.js'), await minify('seasons.js'))
+await fs.writeFile(path.join(docs, 'seasons/fx.js'), await minify('fx.js'))
+
 const urls = [...pages.map((p) => (p.slug === 'index.html' ? SITE : SITE + p.slug)), `${SITE}report-example.html`]
 await fs.writeFile(
   path.join(docs, 'sitemap.xml'),
